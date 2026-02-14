@@ -131,7 +131,6 @@ function InfernoFortuneSlot() {
   ]);
   
   const [winningPositions, setWinningPositions] = useState([]);
-  const [winningLines, setWinningLines] = useState([]);
   
   const spinInProgressRef = useRef(false);
 
@@ -276,7 +275,6 @@ function InfernoFortuneSlot() {
     spinInProgressRef.current = true;
     setIsSpinning(true);
     setWinningPositions([]);
-    setWinningLines([]);
     setCurrentWin(0);
     
     if (!freeSpinsMode) {
@@ -324,7 +322,6 @@ function InfernoFortuneSlot() {
         setTimeout(async () => {
           const { totalPayout, winLines, winPositions, scatterCount, scatterPositions } = calculateWins(resultReels);
           
-          setWinningLines(winLines);
           setWinningPositions(winPositions);
           setCurrentWin(totalPayout);
           setLastWin(totalPayout);
@@ -406,6 +403,7 @@ function InfernoFortuneSlot() {
   };
 
   // FIX #3: useEffect per trigger auto spin
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (autoSpinActive && !isSpinning && !spinInProgressRef.current && !freeSpinsMode) {
       const canStart = autoSpinMode === 'spins' 
@@ -421,7 +419,7 @@ function InfernoFortuneSlot() {
         setAutoSpinActive(false);
       }
     }
-  }, [autoSpinActive, autoSpinSpinsRemaining, autoSpinBudgetRemaining, isSpinning, freeSpinsMode]);
+  }, [autoSpinActive, autoSpinSpinsRemaining, autoSpinBudgetRemaining, isSpinning, freeSpinsMode, autoSpinMode, credits, currentBet, turboMode]);
 
   const handleAutoSpinConfig = (mode, value) => {
     setAutoSpinMode(mode);
