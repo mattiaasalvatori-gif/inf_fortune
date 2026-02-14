@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Flame, Volume2, Settings, Sparkles, Zap, X } from 'lucide-react';
 
 // === DATI SIMBOLI (IDENTICI ALL'ORIGINALE) ===
@@ -189,9 +189,8 @@ function InfernoFortuneSlot() {
     return null;
   };
 
-  const calculateWins = (reelGrid) => {
+  const calculateWins = useCallback((reelGrid) => {
     let totalPayout = 0;
-    let winLines = [];
     let winPositions = [];
     const betPerLine = currentBet / LINES;
     
@@ -206,7 +205,6 @@ function InfernoFortuneSlot() {
       const lineWin = checkLineWin(reelGrid, PAYLINES[i], expandingSymbol);
       if (lineWin) {
         totalPayout += lineWin.payout * betPerLine;
-        winLines.push(i);
         lineWin.positions.forEach(pos => {
           if (!winPositions.some(([r, ro]) => r === pos[0] && ro === pos[1])) {
             winPositions.push(pos);
@@ -215,8 +213,8 @@ function InfernoFortuneSlot() {
       }
     }
     
-    return { totalPayout, winLines, winPositions, scatterCount, scatterPositions };
-  };
+    return { totalPayout, winPositions, scatterCount, scatterPositions };
+  }, [currentBet, expandingSymbol]);
 
   const expandSymbols = (reelGrid, expandingSymbol) => {
     const newGrid = reelGrid.map(reel => [...reel]);
@@ -262,8 +260,8 @@ function InfernoFortuneSlot() {
     return selectedSymbol;
   };
 
-  // FIX #1 + #3: SPIN con animazione continua e auto spin corretto
-  const handleSpin = async () => {
+  // FIX ESLINT: handleSpin wrapped con useCallback
+  const handleSpin = useCallback(async () => {
     if (isSpinning || spinInProgressRef.current) return;
     if (!freeSpinsMode && credits < currentBet) {
       alert('Crediti insufficienti!');
@@ -320,7 +318,8 @@ function InfernoFortuneSlot() {
         setReels(resultReels);
         
         setTimeout(async () => {
-          const { totalPayout, winLines, winPositions, scatterCount, scatterPositions } = calculateWins(resultReels);
+          // FIX ESLINT: winLines rimosso (non usato)
+          const { totalPayout, winPositions, scatterCount, scatterPositions } = calculateWins(resultReels);
           
           setWinningPositions(winPositions);
           setCurrentWin(totalPayout);
@@ -400,10 +399,23 @@ function InfernoFortuneSlot() {
         }, 300);
       }
     }, intervalTime);
-  };
+  }, [
+    isSpinning,
+    freeSpinsMode,
+    credits,
+    currentBet,
+    autoSpinActive,
+    autoSpinMode,
+    autoSpinBudgetRemaining,
+    turboMode,
+    expandingSymbol,
+    freeSpinsRemaining,
+    freeSpinsTotalWin,
+    autoSpinSpinsRemaining,
+    calculateWins
+  ]);
 
-  // FIX #3: useEffect per trigger auto spin
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // FIX ESLINT: useEffect con handleSpin nella dependency array
   useEffect(() => {
     if (autoSpinActive && !isSpinning && !spinInProgressRef.current && !freeSpinsMode) {
       const canStart = autoSpinMode === 'spins' 
@@ -419,7 +431,18 @@ function InfernoFortuneSlot() {
         setAutoSpinActive(false);
       }
     }
-  }, [autoSpinActive, autoSpinSpinsRemaining, autoSpinBudgetRemaining, isSpinning, freeSpinsMode, autoSpinMode, credits, currentBet, turboMode]);
+  }, [
+    autoSpinActive,
+    autoSpinSpinsRemaining,
+    autoSpinBudgetRemaining,
+    isSpinning,
+    freeSpinsMode,
+    autoSpinMode,
+    credits,
+    currentBet,
+    turboMode,
+    handleSpin
+  ]);
 
   const handleAutoSpinConfig = (mode, value) => {
     setAutoSpinMode(mode);
