@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flame, ArrowLeft, Volume2, Settings, Trophy, Sparkles } from 'lucide-react';
+import { Flame, ArrowLeft, Volume2, Settings, Trophy, Sparkles, Zap, X } from 'lucide-react';
 
 // === DATI SIMBOLI ===
 const SYMBOLS = {
@@ -7,119 +7,111 @@ const SYMBOLS = {
     name: 'Dante',
     type: 'high',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769968270/1_Esploratore_Dante_a8kswr.png',
-    pays: [0, 0, 15, 80, 250], // RIDOTTI per RTP 12%
-    canExpand: true,
-    weight: 1 // RARISSIMO (1%)
+    pays: [0, 0, 100, 1000, 5000],
+    canExpand: true
   },
   book: {
     name: 'Libro',
     type: 'wild-scatter',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/2_Libro_Commedia_qbcgfd.png',
-    pays: [0, 0, 1, 5, 25], // RIDOTTI drasticamente
+    pays: [0, 0, 2, 20, 200],
     scatter: true,
-    wild: true,
-    weight: 1 // Scatter MOLTO raro (1%)
+    wild: true
   },
   beatrice: {
     name: 'Beatrice',
     type: 'high',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958222/3_Faraone_Beatrice_fimpos.png',
-    pays: [0, 0, 8, 50, 150], // RIDOTTI
-    canExpand: true,
-    weight: 2 // Raro (2%)
+    pays: [0, 0, 40, 400, 2000],
+    canExpand: true
   },
   virgilio: {
     name: 'Virgilio',
     type: 'high',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/4_Iside_Virgilio_tmkqfn.png',
-    pays: [0, 0, 8, 50, 150], // RIDOTTI
-    canExpand: true,
-    weight: 2 // Raro (2%)
+    pays: [0, 0, 40, 400, 2000],
+    canExpand: true
   },
   caronte: {
     name: 'Caronte',
     type: 'medium',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/5_Scarabeo_Moneta_caronte_us2hwz.png',
-    pays: [0, 0, 5, 25, 80], // RIDOTTI
-    canExpand: true,
-    weight: 4 // Poco comune (4%)
+    pays: [0, 0, 30, 150, 750],
+    canExpand: true
   },
   A: {
     name: 'Asso',
     type: 'low',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/6_Asso_t5xac7.png',
-    pays: [0, 0, 2, 8, 25], // RIDOTTI
-    canExpand: true,
-    weight: 18 // Comune (18%)
+    pays: [0, 0, 10, 40, 150],
+    canExpand: true
   },
   K: {
     name: 'Re',
     type: 'low',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958219/7_Re_iwnwiy.png',
-    pays: [0, 0, 2, 8, 25], // RIDOTTI
-    canExpand: true,
-    weight: 18 // Comune (18%)
+    pays: [0, 0, 10, 40, 150],
+    canExpand: true
   },
   Q: {
     name: 'Donna',
     type: 'low',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958221/8_Donna_gmbq9e.png',
-    pays: [0, 0, 2, 8, 25], // RIDOTTI
-    canExpand: true,
-    weight: 20 // Molto comune (20%)
+    pays: [0, 0, 10, 40, 150],
+    canExpand: true
   },
   J: {
     name: 'Fante',
     type: 'low',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958221/9_Fante_wdsxdg.png',
-    pays: [0, 0, 2, 8, 25], // RIDOTTI
-    canExpand: true,
-    weight: 20 // Molto comune (20%)
+    pays: [0, 0, 10, 40, 150],
+    canExpand: true
   },
   Ten: {
     name: 'Dieci',
     type: 'low',
     img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958225/10_Dieci_uly2im.png',
-    pays: [0, 0, 2, 8, 25], // RIDOTTI
-    canExpand: true,
-    weight: 14 // Comune (14%)
+    pays: [0, 0, 10, 40, 150],
+    canExpand: true
   }
 };
 
-// Array ponderato per generazione simboli (RTP 12%)
-const createWeightedSymbolPool = () => {
-  const pool = [];
-  Object.keys(SYMBOLS).forEach(key => {
-    const weight = SYMBOLS[key].weight;
-    for (let i = 0; i < weight; i++) {
-      pool.push(key);
-    }
-  });
-  return pool;
-};
+const SYMBOL_KEYS = Object.keys(SYMBOLS);
+const LINES = 10; // Fisso a 10 linee
 
-const SYMBOL_POOL = createWeightedSymbolPool();
-
-// Definizione delle 10 linee di pagamento
+// Linee di pagamento
 const PAYLINES = [
-  [[0,1], [1,1], [2,1], [3,1], [4,1]], // Linea 1: centro
-  [[0,0], [1,0], [2,0], [3,0], [4,0]], // Linea 2: alto
-  [[0,2], [1,2], [2,2], [3,2], [4,2]], // Linea 3: basso
-  [[0,0], [1,1], [2,2], [3,1], [4,0]], // Linea 4: V
-  [[0,2], [1,1], [2,0], [3,1], [4,2]], // Linea 5: ^
-  [[0,1], [1,0], [2,0], [3,0], [4,1]], // Linea 6
-  [[0,1], [1,2], [2,2], [3,2], [4,1]], // Linea 7
-  [[0,0], [1,0], [2,1], [3,2], [4,2]], // Linea 8
-  [[0,2], [1,2], [2,1], [3,0], [4,0]], // Linea 9
-  [[0,1], [1,0], [2,1], [3,2], [4,1]]  // Linea 10
+  [[0,1], [1,1], [2,1], [3,1], [4,1]], // 1
+  [[0,0], [1,0], [2,0], [3,0], [4,0]], // 2
+  [[0,2], [1,2], [2,2], [3,2], [4,2]], // 3
+  [[0,0], [1,1], [2,2], [3,1], [4,0]], // 4
+  [[0,2], [1,1], [2,0], [3,1], [4,2]], // 5
+  [[0,1], [1,0], [2,0], [3,0], [4,1]], // 6
+  [[0,1], [1,2], [2,2], [3,2], [4,1]], // 7
+  [[0,0], [1,0], [2,1], [3,2], [4,2]], // 8
+  [[0,2], [1,2], [2,1], [3,0], [4,0]], // 9
+  [[0,1], [1,0], [2,1], [3,2], [4,1]]  // 10
 ];
 
 function InfernoFortuneSlot() {
-  const [credits, setCredits] = useState(500);
-  const [currentBet, setCurrentBet] = useState(10);
-  const [lines, setLines] = useState(10);
+  const [credits, setCredits] = useState(1500);
+  const [currentBet, setCurrentBet] = useState(5); // Puntata totale (0.5 per linea × 10)
   const [isSpinning, setIsSpinning] = useState(false);
   const [currentWin, setCurrentWin] = useState(0);
+  const [lastWin, setLastWin] = useState(0);
+  
+  // Turbo mode
+  const [turboMode, setTurboMode] = useState(false);
+  
+  // Modale selezione puntata
+  const [showBetModal, setShowBetModal] = useState(false);
+  
+  // AutoSpin
+  const [autoSpinActive, setAutoSpinActive] = useState(false);
+  const [showAutoSpinModal, setShowAutoSpinModal] = useState(false);
+  const [autoSpinSpinsRemaining, setAutoSpinSpinsRemaining] = useState(0);
+  const [autoSpinBudgetRemaining, setAutoSpinBudgetRemaining] = useState(0);
+  const [autoSpinMode, setAutoSpinMode] = useState('spins'); // 'spins' o 'budget'
   
   // Free Spins
   const [freeSpinsMode, setFreeSpinsMode] = useState(false);
@@ -128,12 +120,12 @@ function InfernoFortuneSlot() {
   const [freeSpinsTotalWin, setFreeSpinsTotalWin] = useState(0);
   
   // Animazioni
-  const [showScatterAnimation, setShowScatterAnimation] = useState(false);
-  const [showExpandingSelection, setShowExpandingSelection] = useState(false);
-  const [expandingSelectionSymbols, setExpandingSelectionSymbols] = useState([]);
-  const [currentExpandingIndex, setCurrentExpandingIndex] = useState(0);
+  const [showScatterCelebration, setShowScatterCelebration] = useState(false);
+  const [showSymbolSelection, setShowSymbolSelection] = useState(false);
+  const [symbolSelectionOptions, setSymbolSelectionOptions] = useState([]);
+  const [selectedSymbolIndex, setSelectedSymbolIndex] = useState(0);
   
-  // Stato rulli
+  // Rulli e animazioni
   const [reels, setReels] = useState([
     ['virgilio', 'K', 'beatrice'],
     ['Q', 'dante', 'A'],
@@ -141,41 +133,24 @@ function InfernoFortuneSlot() {
     ['book', 'Q', 'Ten'],
     ['beatrice', 'K', 'virgilio']
   ]);
+  const [spinningReels, setSpinningReels] = useState([false, false, false, false, false]);
+  const [reelAnimationSymbols, setReelAnimationSymbols] = useState([[], [], [], [], []]);
   
-  // Rulli in animazione
-  const [spinningReels, setSpinningReels] = useState([]);
-  const [reelsStopped, setReelsStopped] = useState([true, true, true, true, true]);
-  
-  // Simboli vincenti
   const [winningPositions, setWinningPositions] = useState([]);
   const [winningLines, setWinningLines] = useState([]);
 
-  // === FUNZIONE: Genera simbolo casuale ponderato ===
+  // === FUNZIONI UTILITÀ ===
   const generateRandomSymbol = () => {
-    return SYMBOL_POOL[Math.floor(Math.random() * SYMBOL_POOL.length)];
+    return SYMBOL_KEYS[Math.floor(Math.random() * SYMBOL_KEYS.length)];
   };
 
-  // === FUNZIONE: Genera stack di simboli per animazione ===
-  const generateSpinningStack = (finalSymbol) => {
-    const stack = [];
-    for (let i = 0; i < 20; i++) {
-      stack.push(generateRandomSymbol());
-    }
-    stack.push(finalSymbol);
-    return stack;
+  const generateRandomReel = () => {
+    return Array(3).fill(null).map(() => generateRandomSymbol());
   };
 
-  // === FUNZIONE: Genera nuovi rulli ===
-  const generateNewReels = () => {
-    return Array(5).fill(null).map(() => 
-      Array(3).fill(null).map(() => generateRandomSymbol())
-    );
-  };
-
-  // === FUNZIONE: Conta scatter ===
   const countScatters = (reelGrid) => {
     let count = 0;
-    const positions = [];
+    let positions = [];
     reelGrid.forEach((reel, reelIdx) => {
       reel.forEach((symbol, rowIdx) => {
         if (symbol === 'book') {
@@ -187,7 +162,6 @@ function InfernoFortuneSlot() {
     return { count, positions };
   };
 
-  // === FUNZIONE: Controlla vincita su una linea ===
   const checkLineWin = (reelGrid, linePositions, expandingSymbol = null) => {
     const symbols = linePositions.map(([reelIndex, rowIndex]) => 
       reelGrid[reelIndex][rowIndex]
@@ -213,96 +187,140 @@ function InfernoFortuneSlot() {
       const expandingCount = symbols.filter(s => s === expandingSymbol).length;
       if (expandingCount >= 3) {
         const payout = SYMBOLS[expandingSymbol].pays[expandingCount - 1] || 0;
-        return { symbol: expandingSymbol, count: expandingCount, payout };
+        return { symbol: expandingSymbol, count: expandingCount, payout, positions: linePositions.slice(0, expandingCount) };
       }
     }
     
     if (matchCount >= 3) {
       const payout = SYMBOLS[firstSymbol].pays[matchCount - 1] || 0;
-      return { symbol: firstSymbol, count: matchCount, payout };
+      return { symbol: firstSymbol, count: matchCount, payout, positions: linePositions.slice(0, matchCount) };
     }
     
     return null;
   };
 
-  // === FUNZIONE: Calcola tutte le vincite ===
   const calculateWins = (reelGrid) => {
     let totalPayout = 0;
     let winLines = [];
     let winPositions = [];
+    const betPerLine = currentBet / LINES;
     
     const { count: scatterCount, positions: scatterPositions } = countScatters(reelGrid);
     if (scatterCount >= 3) {
       const scatterPayout = SYMBOLS.book.pays[scatterCount - 1] || 0;
-      totalPayout += scatterPayout * currentBet * lines;
+      totalPayout += scatterPayout * currentBet;
       winPositions.push(...scatterPositions);
     }
     
-    for (let i = 0; i < lines; i++) {
+    for (let i = 0; i < LINES; i++) {
       const lineWin = checkLineWin(reelGrid, PAYLINES[i], expandingSymbol);
       if (lineWin) {
-        totalPayout += lineWin.payout * currentBet;
+        totalPayout += lineWin.payout * betPerLine;
         winLines.push(i);
-        
-        for (let j = 0; j < lineWin.count; j++) {
-          const [reelIdx, rowIdx] = PAYLINES[i][j];
-          if (!winPositions.some(([r, ro]) => r === reelIdx && ro === rowIdx)) {
-            winPositions.push([reelIdx, rowIdx]);
+        lineWin.positions.forEach(pos => {
+          if (!winPositions.some(([r, ro]) => r === pos[0] && ro === pos[1])) {
+            winPositions.push(pos);
           }
-        }
+        });
       }
     }
     
-    return { totalPayout, winLines, winPositions, scatterCount };
+    return { totalPayout, winLines, winPositions, scatterCount, scatterPositions };
   };
 
-  // === FUNZIONE: Espandi simboli ===
   const expandSymbols = (reelGrid, expandingSymbol) => {
     const newGrid = reelGrid.map(reel => [...reel]);
-    
     newGrid.forEach((reel, reelIdx) => {
       if (reel.includes(expandingSymbol)) {
         newGrid[reelIdx] = [expandingSymbol, expandingSymbol, expandingSymbol];
       }
     });
-    
     return newGrid;
   };
 
-  // === ANIMAZIONE: Selezione simbolo expanding ===
-  const animateExpandingSelection = async (finalSymbol) => {
-    const expandableSymbols = Object.keys(SYMBOLS).filter(key => 
+  // === ANIMAZIONE RULLI (FIX: simboli generati UNA VOLTA) ===
+  const animateReelSpin = async (reelIndex, finalSymbols, delay = 0) => {
+    const spinDuration = turboMode ? 500 : 2000; // 0.5s turbo, 2s normale
+    
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const animSymbols = Array(20).fill(null).map(() => generateRandomSymbol());
+        
+        setReelAnimationSymbols(prev => {
+          const newSymbols = [...prev];
+          newSymbols[reelIndex] = animSymbols;
+          return newSymbols;
+        });
+        
+        setSpinningReels(prev => {
+          const newSpinning = [...prev];
+          newSpinning[reelIndex] = true;
+          return newSpinning;
+        });
+        
+        setTimeout(() => {
+          setSpinningReels(prev => {
+            const newSpinning = [...prev];
+            newSpinning[reelIndex] = false;
+            return newSpinning;
+          });
+          
+          // IMPORTANTE: Imposta i simboli FINALI qui (non dopo!)
+          setReels(prev => {
+            const newReels = [...prev];
+            newReels[reelIndex] = finalSymbols;
+            return newReels;
+          });
+          
+          resolve();
+        }, spinDuration + delay);
+      }, delay);
+    });
+  };
+
+  // === ANIMAZIONE SCATTER CELEBRATION ===
+  const playScatterCelebration = async (scatterPositions) => {
+    setShowScatterCelebration(true);
+    setWinningPositions(scatterPositions);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setShowScatterCelebration(false);
+  };
+
+  // === ANIMAZIONE SELEZIONE SIMBOLO ===
+  const playSymbolSelection = async () => {
+    const expandableSymbols = SYMBOL_KEYS.filter(key => 
       key !== 'book' && SYMBOLS[key].canExpand
     );
     
-    setExpandingSelectionSymbols(expandableSymbols);
-    setShowExpandingSelection(true);
-    setCurrentExpandingIndex(0);
+    setSymbolSelectionOptions(expandableSymbols);
+    setShowSymbolSelection(true);
     
-    // Rotazione veloce per 3 secondi
-    const totalSteps = 30;
-    for (let i = 0; i < totalSteps; i++) {
-      setCurrentExpandingIndex(Math.floor(Math.random() * expandableSymbols.length));
-      await new Promise(resolve => setTimeout(resolve, 100));
+    const spins = 30;
+    const spinDuration = 100;
+    
+    for (let i = 0; i < spins; i++) {
+      setSelectedSymbolIndex(i % expandableSymbols.length);
+      await new Promise(resolve => setTimeout(resolve, spinDuration));
     }
     
-    // Rallenta e ferma sul simbolo finale
-    const finalIndex = expandableSymbols.indexOf(finalSymbol);
-    for (let i = 0; i < 5; i++) {
-      setCurrentExpandingIndex(finalIndex);
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    
+    const finalIndex = Math.floor(Math.random() * expandableSymbols.length);
+    setSelectedSymbolIndex(finalIndex);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setShowExpandingSelection(false);
+    
+    const selectedSymbol = expandableSymbols[finalIndex];
+    setExpandingSymbol(selectedSymbol);
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setShowSymbolSelection(false);
+    
+    return selectedSymbol;
   };
 
-  // === FUNZIONE: Spin con animazioni realistiche ===
+  // === SPIN PRINCIPALE (FIX: simboli generati UNA VOLTA) ===
   const handleSpin = async () => {
     if (isSpinning) return;
     
-    const betAmount = currentBet * lines;
-    if (!freeSpinsMode && credits < betAmount) return;
+    if (!freeSpinsMode && credits < currentBet) return;
     
     setIsSpinning(true);
     setWinningPositions([]);
@@ -310,53 +328,45 @@ function InfernoFortuneSlot() {
     setCurrentWin(0);
     
     if (!freeSpinsMode) {
-      setCredits(prev => prev - betAmount);
+      setCredits(prev => prev - currentBet);
+      
+      // AutoSpin: decrementa budget se attivo
+      if (autoSpinActive && autoSpinMode === 'budget') {
+        setAutoSpinBudgetRemaining(prev => prev - currentBet);
+      }
     }
     
-    // Genera risultati finali
-    let finalReels = generateNewReels();
+    // GENERA SIMBOLI FINALI UNA VOLTA SOLA
+    const finalReels = Array(5).fill(null).map(() => generateRandomReel());
     
-    // Reset stato rulli
-    setReelsStopped([false, false, false, false, false]);
-    
-    // Genera stack di simboli per ogni posizione dei rulli
-    const spinStacks = finalReels.map((reel) => 
-      reel.map((finalSymbol) => 
-        generateSpinningStack(finalSymbol)
-      )
+    // Anima rulli con i simboli finali già decisi
+    const reelDelay = turboMode ? 50 : 200;
+    const reelPromises = finalReels.map((finalReel, index) => 
+      animateReelSpin(index, finalReel, index * reelDelay)
     );
-    setSpinningReels(spinStacks);
     
-    // Ferma i rulli uno alla volta (effetto cascata)
-    for (let i = 0; i < 5; i++) {
-      await new Promise(resolve => setTimeout(resolve, 300 + (i * 200)));
-      setReelsStopped(prev => {
-        const newStopped = [...prev];
-        newStopped[i] = true;
-        return newStopped;
-      });
-    }
+    await Promise.all(reelPromises);
     
-    // Attesa finale
+    // Aspetta un attimo prima di calcolare
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    // Imposta risultati finali
-    setReels(finalReels);
+    // I simboli sono GIÀ impostati, non riimpostarli!
+    let resultReels = finalReels;
     
     // Se in modalità free spin, espandi simbolo
     if (freeSpinsMode && expandingSymbol) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      finalReels = expandSymbols(finalReels, expandingSymbol);
-      setReels(finalReels);
+      resultReels = expandSymbols(finalReels, expandingSymbol);
+      setReels(resultReels);
+      await new Promise(resolve => setTimeout(resolve, 800));
     }
     
     // Calcola vincite
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const { totalPayout, winLines, winPositions, scatterCount } = calculateWins(finalReels);
+    const { totalPayout, winLines, winPositions, scatterCount, scatterPositions } = calculateWins(resultReels);
     
     setWinningLines(winLines);
     setWinningPositions(winPositions);
     setCurrentWin(totalPayout);
+    setLastWin(totalPayout);
     
     if (totalPayout > 0) {
       setCredits(prev => prev + totalPayout);
@@ -365,36 +375,32 @@ function InfernoFortuneSlot() {
       }
     }
     
-    // Gestione scatter (3+ libri)
+    // Gestione scatter (3+)
     if (scatterCount >= 3) {
-      // Animazione scatter
-      setShowScatterAnimation(true);
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      setShowScatterAnimation(false);
+      // FERMA AUTOSPIN se attivo
+      if (autoSpinActive) {
+        setAutoSpinActive(false);
+        setAutoSpinSpinsRemaining(0);
+        setAutoSpinBudgetRemaining(0);
+      }
+      
+      await playScatterCelebration(scatterPositions);
       
       if (freeSpinsMode) {
         setFreeSpinsRemaining(prev => prev + 10);
       } else {
-        // Attiva free spins con animazione simbolo
-        const expandableSymbols = Object.keys(SYMBOLS).filter(key => 
-          key !== 'book' && SYMBOLS[key].canExpand
-        );
-        const randomSymbol = expandableSymbols[Math.floor(Math.random() * expandableSymbols.length)];
-        
-        setExpandingSymbol(randomSymbol);
+        await playSymbolSelection();
         setFreeSpinsMode(true);
         setFreeSpinsRemaining(10);
         setFreeSpinsTotalWin(0);
-        
-        await animateExpandingSelection(randomSymbol);
-        
         setIsSpinning(false);
-        setTimeout(() => handleSpin(), 500);
+        
+        // Free spins NON sono auto
         return;
       }
     }
     
-    // Gestione free spins
+    // Continua free spins
     if (freeSpinsMode) {
       await new Promise(resolve => setTimeout(resolve, 1500));
       const remaining = freeSpinsRemaining - 1;
@@ -402,90 +408,254 @@ function InfernoFortuneSlot() {
       
       if (remaining > 0) {
         setIsSpinning(false);
-        setTimeout(() => handleSpin(), 500);
+        setTimeout(() => handleSpin(), 1000);
       } else {
-        endFreeSpins();
+        setFreeSpinsMode(false);
+        setExpandingSymbol(null);
+        setIsSpinning(false);
+        
+        setTimeout(() => {
+          alert(`🎉 FREE SPINS COMPLETATI!\n\nVincita Totale: ${freeSpinsTotalWin.toFixed(2)} token`);
+          setFreeSpinsTotalWin(0);
+        }, 500);
       }
     } else {
       setIsSpinning(false);
+      
+      // AutoSpin: continua se attivo
+      if (autoSpinActive) {
+        const canContinue = autoSpinMode === 'spins' 
+          ? autoSpinSpinsRemaining > 1 
+          : (autoSpinBudgetRemaining >= currentBet && credits >= currentBet);
+        
+        if (canContinue) {
+          if (autoSpinMode === 'spins') {
+            setAutoSpinSpinsRemaining(prev => prev - 1);
+          }
+          setTimeout(() => handleSpin(), turboMode ? 500 : 1000);
+        } else {
+          setAutoSpinActive(false);
+          setAutoSpinSpinsRemaining(0);
+          setAutoSpinBudgetRemaining(0);
+        }
+      }
     }
   };
 
-  // === FUNZIONE: Termina Free Spins ===
-  const endFreeSpins = () => {
-    setFreeSpinsMode(false);
-    setExpandingSymbol(null);
-    setIsSpinning(false);
+  // === GESTIONE PUNTATA ===
+  // La puntata viene selezionata tramite modale con importi preimpostati
+
+  // === AUTOSPIN ===
+  const handleAutoSpinConfig = (mode, value) => {
+    setAutoSpinMode(mode);
+    if (mode === 'spins') {
+      setAutoSpinSpinsRemaining(value);
+      setAutoSpinBudgetRemaining(0);
+    } else {
+      setAutoSpinBudgetRemaining(value);
+      setAutoSpinSpinsRemaining(0);
+    }
+    setAutoSpinActive(true);
+    setShowAutoSpinModal(false);
     
-    setTimeout(() => {
-      alert(`FREE SPINS COMPLETATI!\n\nVincita Totale: ${freeSpinsTotalWin.toFixed(2)} crediti`);
-      setFreeSpinsTotalWin(0);
-    }, 500);
+    // Avvia primo spin
+    setTimeout(() => handleSpin(), 500);
   };
 
-  // === FUNZIONE: Cambia bet ===
-  const changeBet = (amount) => {
-    if (isSpinning) return;
-    const newBet = Math.max(1, Math.min(500, currentBet + amount));
-    setCurrentBet(newBet);
+  const toggleAutoSpin = () => {
+    if (autoSpinActive) {
+      setAutoSpinActive(false);
+      setAutoSpinSpinsRemaining(0);
+      setAutoSpinBudgetRemaining(0);
+    } else {
+      setShowAutoSpinModal(true);
+    }
   };
-
-  // === FUNZIONE: Cambia linee ===
-  const changeLines = (amount) => {
-    if (isSpinning) return;
-    const newLines = Math.max(1, Math.min(10, lines + amount));
-    setLines(newLines);
-  };
-
-  const totalBet = currentBet * lines;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black flex flex-col relative overflow-hidden">
-      {/* Sfondo animato */}
+      {/* Sfondo */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-orange-600 via-red-600 to-transparent animate-pulse"></div>
       </div>
 
-      {/* ANIMAZIONE SCATTER */}
-      {showScatterAnimation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 animate-fade-in">
-          <div className="text-center animate-scale-pulse">
-            <div className="text-8xl mb-6 animate-bounce">📕</div>
-            <div className="text-6xl font-black text-yellow-300 mb-4 animate-glow">
-              FREE SPINS!
+      {/* MODAL AUTOSPIN */}
+      {showAutoSpinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 border-4 border-yellow-500 shadow-2xl max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-black text-yellow-300">AUTO SPIN</h2>
+              <button 
+                onClick={() => setShowAutoSpinModal(false)}
+                className="text-yellow-400 hover:text-yellow-200"
+              >
+                <X className="w-8 h-8" />
+              </button>
             </div>
-            <div className="text-3xl text-white font-bold">
-              10 Giri Gratis Attivati!
-            </div>
-            <div className="flex gap-4 justify-center mt-8">
-              <Sparkles className="w-16 h-16 text-yellow-400 animate-spin-slow" />
-              <Sparkles className="w-16 h-16 text-orange-400 animate-spin-slow" style={{animationDelay: '0.2s'}} />
-              <Sparkles className="w-16 h-16 text-red-400 animate-spin-slow" style={{animationDelay: '0.4s'}} />
+            
+            <div className="space-y-6">
+              {/* Limite GIRI */}
+              <div>
+                <label className="text-yellow-400 font-bold text-lg mb-2 block">
+                  Limite GIRI (5-100)
+                </label>
+                <input 
+                  type="range" 
+                  min="5" 
+                  max="100" 
+                  step="5"
+                  defaultValue="10"
+                  className="w-full"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('spins-value').textContent = value;
+                  }}
+                  id="spins-slider"
+                />
+                <div className="text-center text-white text-2xl font-black mt-2">
+                  <span id="spins-value">10</span> giri
+                </div>
+                <button
+                  onClick={() => {
+                    const value = parseInt(document.getElementById('spins-slider').value);
+                    handleAutoSpinConfig('spins', value);
+                  }}
+                  className="w-full mt-3 bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl"
+                >
+                  AVVIA CON GIRI
+                </button>
+              </div>
+
+              <div className="border-t-2 border-yellow-600 pt-6">
+                {/* Limite TOKEN */}
+                <label className="text-yellow-400 font-bold text-lg mb-2 block">
+                  Limite TOKEN (10-{credits.toFixed(0)})
+                </label>
+                <input 
+                  type="range" 
+                  min="10" 
+                  max={Math.max(10, credits)}
+                  step="10"
+                  defaultValue="50"
+                  className="w-full"
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    document.getElementById('budget-value').textContent = value;
+                  }}
+                  id="budget-slider"
+                />
+                <div className="text-center text-white text-2xl font-black mt-2">
+                  <span id="budget-value">50</span> token
+                </div>
+                <button
+                  onClick={() => {
+                    const value = parseInt(document.getElementById('budget-slider').value);
+                    handleAutoSpinConfig('budget', value);
+                  }}
+                  className="w-full mt-3 bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl"
+                >
+                  AVVIA CON BUDGET
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ANIMAZIONE SELEZIONE SIMBOLO EXPANDING */}
-      {showExpandingSelection && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-          <div className="text-center">
-            <div className="text-4xl font-black text-yellow-300 mb-8">
-              SIMBOLO EXPANDING
+      {/* MODAL SELEZIONE PUNTATA */}
+      {showBetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 border-4 border-yellow-500 shadow-2xl max-w-lg w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-black text-yellow-300">SELEZIONA PUNTATA</h2>
+              <button 
+                onClick={() => setShowBetModal(false)}
+                className="text-yellow-400 hover:text-yellow-200"
+              >
+                <X className="w-8 h-8" />
+              </button>
             </div>
-            <div className="w-64 h-64 bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl p-8 border-8 border-yellow-400 shadow-2xl animate-pulse-slow">
-              {expandingSelectionSymbols.length > 0 && (
-                <img 
-                  src={SYMBOLS[expandingSelectionSymbols[currentExpandingIndex]].img}
-                  alt="Simbolo"
-                  className="w-full h-full object-contain animate-rotate-y"
-                />
+            
+            <div className="grid grid-cols-3 gap-4">
+              {[0.5, 1, 1.5, 2.5, 5, 8, 10, 15, 20, 50].map(bet => (
+                <button
+                  key={bet}
+                  onClick={() => {
+                    setCurrentBet(bet);
+                    setShowBetModal(false);
+                  }}
+                  className={`
+                    py-4 px-6 rounded-xl font-black text-2xl transition-all
+                    ${currentBet === bet 
+                      ? 'bg-yellow-500 text-black border-4 border-yellow-300' 
+                      : 'bg-gray-700 text-yellow-400 border-2 border-gray-600 hover:bg-gray-600'
+                    }
+                  `}
+                >
+                  {bet.toFixed(1)}
+                </button>
+              ))}
+              
+              {/* Puntata 100 solo se credito > 1000 */}
+              {credits > 1000 && (
+                <button
+                  onClick={() => {
+                    setCurrentBet(100);
+                    setShowBetModal(false);
+                  }}
+                  className={`
+                    py-4 px-6 rounded-xl font-black text-2xl transition-all
+                    ${currentBet === 100 
+                      ? 'bg-yellow-500 text-black border-4 border-yellow-300' 
+                      : 'bg-gradient-to-br from-orange-600 to-red-600 text-white border-2 border-orange-400 hover:from-orange-500 hover:to-red-500'
+                    }
+                  `}
+                >
+                  100
+                </button>
               )}
             </div>
-            <div className="text-2xl text-white font-bold mt-6">
-              {expandingSelectionSymbols.length > 0 && 
-                SYMBOLS[expandingSelectionSymbols[currentExpandingIndex]].name}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SELEZIONE SIMBOLO */}
+      {showSymbolSelection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-3xl p-12 border-8 border-yellow-500 shadow-2xl max-w-4xl">
+            <h2 className="text-5xl font-black text-yellow-300 text-center mb-8 animate-pulse">
+              🎰 SELEZIONE SIMBOLO EXPANDING 🎰
+            </h2>
+            
+            <div className="grid grid-cols-5 gap-6 mb-8">
+              {symbolSelectionOptions.map((symbolKey, index) => (
+                <div
+                  key={symbolKey}
+                  className={`
+                    p-4 rounded-2xl border-4 transition-all duration-200
+                    ${index === selectedSymbolIndex 
+                      ? 'bg-yellow-400 border-yellow-300 scale-125 shadow-2xl' 
+                      : 'bg-purple-800/50 border-purple-600 scale-100'
+                    }
+                  `}
+                >
+                  <img 
+                    src={SYMBOLS[symbolKey].img}
+                    alt={SYMBOLS[symbolKey].name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      filter: index === selectedSymbolIndex ? 'drop-shadow(0 0 20px gold)' : 'none'
+                    }}
+                  />
+                </div>
+              ))}
             </div>
+            
+            <p className="text-yellow-200 text-2xl text-center font-bold">
+              Il simbolo scelto si espanderà durante i Free Spins!
+            </p>
           </div>
         </div>
       )}
@@ -526,7 +696,7 @@ function InfernoFortuneSlot() {
               <Trophy className="w-8 h-8 text-yellow-300" />
               <div>
                 <div className="text-yellow-300 font-black text-2xl">FREE SPINS ATTIVI!</div>
-                <div className="text-white text-sm">Simbolo Expanding: {SYMBOLS[expandingSymbol].name}</div>
+                <div className="text-white text-sm">Simbolo Expanding: {SYMBOLS[expandingSymbol]?.name}</div>
               </div>
             </div>
             <div className="text-right">
@@ -545,7 +715,6 @@ function InfernoFortuneSlot() {
       <div className="flex-1 flex items-center justify-center p-8 relative z-10">
         <div className="max-w-6xl w-full">
           
-          {/* Container rulli */}
           <div className="relative bg-gradient-to-b from-amber-900 via-yellow-800 to-amber-900 p-6 rounded-3xl shadow-2xl border-8 border-double border-yellow-600">
             
             <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-600 to-orange-600 px-12 py-3 rounded-t-2xl border-4 border-yellow-600 shadow-xl z-10">
@@ -557,10 +726,10 @@ function InfernoFortuneSlot() {
             </div>
 
             {/* Griglia rulli */}
-            <div className="bg-gradient-to-b from-black via-gray-900 to-black rounded-2xl p-4 shadow-inner relative">
+            <div className="bg-gradient-to-b from-black via-gray-900 to-black rounded-2xl p-4 shadow-inner relative overflow-hidden">
               
               {/* Numeri sinistra */}
-              <div className="absolute -left-16 top-0 bottom-0 flex flex-col justify-around py-4 z-20">
+              <div className="absolute -left-16 top-0 bottom-0 flex flex-col justify-around py-4 z-10">
                 {[1, 2, 3, 4, 5].map(num => (
                   <div 
                     key={`left-${num}`} 
@@ -576,7 +745,7 @@ function InfernoFortuneSlot() {
               </div>
 
               {/* Numeri destra */}
-              <div className="absolute -right-16 top-0 bottom-0 flex flex-col justify-around py-4 z-20">
+              <div className="absolute -right-16 top-0 bottom-0 flex flex-col justify-around py-4 z-10">
                 {[6, 7, 8, 9, 10].map(num => (
                   <div 
                     key={`right-${num}`} 
@@ -591,52 +760,56 @@ function InfernoFortuneSlot() {
                 ))}
               </div>
 
-              {/* 5 Rulli con animazione */}
+              {/* 5 Rulli */}
               <div className="grid grid-cols-5 gap-2">
                 {reels.map((reel, reelIndex) => (
                   <div key={reelIndex} className="flex flex-col gap-2 relative">
-                    {reel.map((symbolKey, rowIndex) => {
-                      const isWinning = winningPositions.some(
-                        ([r, ro]) => r === reelIndex && ro === rowIndex
-                      );
-                      const isStopped = reelsStopped[reelIndex];
-                      
-                      return (
-                        <div
-                          key={`${reelIndex}-${rowIndex}`}
-                          className={`
-                            bg-gradient-to-br from-red-900 via-orange-800 to-red-900 
-                            rounded-xl border-4
-                            flex items-center justify-center 
-                            aspect-square
-                            shadow-xl
-                            transition-all duration-300
-                            overflow-hidden
-                            relative
-                            ${!isStopped ? 'animate-reel-spin' : ''}
-                            ${isWinning ? 'border-green-400 animate-pulse-win scale-110 z-10' : 'border-yellow-600/50'}
-                            ${isStopped && !isWinning ? 'hover:scale-105 hover:border-yellow-400' : ''}
-                          `}
-                        >
-                          {/* Durante lo spin, mostra simboli che scorrono */}
-                          {!isStopped && spinningReels[reelIndex] && spinningReels[reelIndex][rowIndex] ? (
-                            <div className="animate-reel-scroll absolute inset-0 flex flex-col">
-                              {spinningReels[reelIndex][rowIndex].map((sym, idx) => (
-                                <div key={idx} className="flex-shrink-0 w-full h-full flex items-center justify-center">
-                                  <img 
-                                    src={SYMBOLS[sym].img}
-                                    alt={SYMBOLS[sym].name}
-                                    style={{
-                                      width: '90%',
-                                      height: '90%',
-                                      objectFit: 'contain',
-                                      padding: '4px'
-                                    }}
-                                  />
-                                </div>
-                              ))}
+                    {spinningReels[reelIndex] ? (
+                      <div className="absolute inset-0 overflow-hidden rounded-xl">
+                        <div className="animate-reel-spin">
+                          {reelAnimationSymbols[reelIndex].map((symbolKey, idx) => (
+                            <div
+                              key={idx}
+                              className="bg-gradient-to-br from-red-900 via-orange-800 to-red-900 rounded-xl border-4 border-yellow-600/30 flex items-center justify-center aspect-square mb-2"
+                            >
+                              <img 
+                                src={SYMBOLS[symbolKey].img}
+                                alt={SYMBOLS[symbolKey].name}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'contain',
+                                  padding: '8px',
+                                  filter: 'blur(2px)'
+                                }}
+                              />
                             </div>
-                          ) : (
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      reel.map((symbolKey, rowIndex) => {
+                        const isWinning = winningPositions.some(
+                          ([r, ro]) => r === reelIndex && ro === rowIndex
+                        );
+                        const isScatter = showScatterCelebration && symbolKey === 'book';
+                        
+                        return (
+                          <div
+                            key={`${reelIndex}-${rowIndex}`}
+                            className={`
+                              bg-gradient-to-br from-red-900 via-orange-800 to-red-900 
+                              rounded-xl border-4
+                              flex items-center justify-center 
+                              aspect-square
+                              shadow-xl
+                              transition-all duration-300
+                              overflow-hidden
+                              ${isWinning ? 'border-green-400 animate-pulse-win scale-110 z-20' : 'border-yellow-600/50'}
+                              ${isScatter ? 'animate-scatter-flash' : ''}
+                              ${!isSpinning && !isWinning ? 'hover:scale-105 hover:border-yellow-400' : ''}
+                            `}
+                          >
                             <img 
                               src={SYMBOLS[symbolKey].img}
                               alt={SYMBOLS[symbolKey].name}
@@ -648,10 +821,15 @@ function InfernoFortuneSlot() {
                                 display: 'block'
                               }}
                             />
-                          )}
-                        </div>
-                      );
-                    })}
+                            {isScatter && (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <Sparkles className="w-16 h-16 text-yellow-300 animate-spin" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 ))}
               </div>
@@ -666,111 +844,132 @@ function InfernoFortuneSlot() {
             </div>
           </div>
 
-          {/* Pannello controllo */}
-          <div className="mt-16 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 shadow-2xl border-4 border-yellow-600">
-            <div className="grid grid-cols-7 gap-4 items-center">
+          {/* NUOVO PANNELLO CONTROLLO */}
+          <div className="mt-16 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-8 shadow-2xl border-4 border-yellow-600">
+            <div className="grid grid-cols-4 gap-6">
               
-              <button className="bg-gradient-to-b from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 text-black font-black py-4 px-6 rounded-xl shadow-lg border-2 border-yellow-400 transition-all active:scale-95">
-                <div className="text-xs mb-1">MENU</div>
-              </button>
-
-              <div className="bg-gradient-to-b from-gray-700 to-gray-800 text-yellow-400 font-black py-2 px-4 rounded-xl shadow-lg border-2 border-gray-600">
-                <div className="text-xs mb-1 text-gray-400 text-center">LINES</div>
-                <div className="flex items-center justify-between gap-2">
-                  <button 
-                    onClick={() => changeLines(-1)}
-                    disabled={isSpinning || freeSpinsMode}
-                    className="text-yellow-400 hover:text-yellow-200 disabled:opacity-50"
+              {/* RIQUADRO ROSSO - Credito e Puntata */}
+              <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-6 border-4 border-gray-600 shadow-lg">
+                <div className="text-yellow-400 text-sm font-bold mb-2 text-center">CREDITO:</div>
+                <div className="text-white text-2xl font-black text-center mb-4">
+                  💰 {credits.toFixed(2)}
+                </div>
+                
+                <div className="border-t-2 border-gray-600 pt-4 mt-2">
+                  <div className="text-yellow-400 text-sm font-bold mb-2 text-center">TOT. PUNTATA:</div>
+                  <button
+                    onClick={() => !isSpinning && !freeSpinsMode && !autoSpinActive && setShowBetModal(true)}
+                    disabled={isSpinning || freeSpinsMode || autoSpinActive}
+                    className="w-full text-yellow-300 hover:text-yellow-100 text-4xl font-black py-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    ◀
+                    💳 {currentBet.toFixed(1)}
                   </button>
-                  <div className="text-2xl">{lines}</div>
-                  <button 
-                    onClick={() => changeLines(1)}
-                    disabled={isSpinning || freeSpinsMode}
-                    className="text-yellow-400 hover:text-yellow-200 disabled:opacity-50"
-                  >
-                    ▶
-                  </button>
+                  <div className="text-gray-400 text-xs text-center mt-1">
+                    (click per cambiare)
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-b from-gray-700 to-gray-800 text-yellow-400 font-black py-2 px-4 rounded-xl shadow-lg border-2 border-gray-600">
-                <div className="text-xs mb-1 text-gray-400 text-center">BET/LINE</div>
-                <div className="flex items-center justify-between gap-2">
-                  <button 
-                    onClick={() => changeBet(-1)}
-                    disabled={isSpinning || freeSpinsMode}
-                    className="text-yellow-400 hover:text-yellow-200 disabled:opacity-50"
-                  >
-                    ◀
-                  </button>
-                  <div className="text-2xl">{currentBet}</div>
-                  <button 
-                    onClick={() => changeBet(1)}
-                    disabled={isSpinning || freeSpinsMode}
-                    className="text-yellow-400 hover:text-yellow-200 disabled:opacity-50"
-                  >
-                    ▶
-                  </button>
+              {/* RIQUADRO VERDE - Vincita */}
+              <div className={`col-span-2 rounded-xl p-6 border-4 shadow-lg transition-all ${
+                currentWin > 0 
+                  ? 'bg-gradient-to-br from-green-700 to-green-800 border-green-400 animate-pulse' 
+                  : 'bg-gradient-to-br from-gray-700 to-gray-800 border-gray-600'
+              }`}>
+                <div className="text-yellow-400 text-lg font-bold mb-2 text-center">
+                  {currentWin > 0 ? 'VINCITA ATTUALE:' : 'ULTIMA VINCITA:'}
+                </div>
+                <div className={`text-6xl font-black text-center ${
+                  currentWin > 0 ? 'text-yellow-300' : (lastWin > 0 ? 'text-green-300' : 'text-gray-400')
+                }`}>
+                  💰 {(currentWin > 0 ? currentWin : lastWin).toFixed(2)}
                 </div>
               </div>
 
-              <div className="bg-gradient-to-b from-red-800 to-red-900 text-yellow-300 font-black py-4 px-8 rounded-xl shadow-lg border-4 border-yellow-500">
-                <div className="text-xs mb-1">TOTAL BET</div>
-                <div className="text-3xl">{totalBet.toFixed(2)}</div>
+              {/* RIQUADRO BLU - Opzioni */}
+              <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl p-4 border-4 border-blue-600 shadow-lg flex flex-col gap-3">
+                
+                {/* Turbo */}
+                <button
+                  onClick={() => setTurboMode(!turboMode)}
+                  disabled={isSpinning}
+                  className={`${
+                    turboMode 
+                      ? 'bg-yellow-500 border-yellow-400' 
+                      : 'bg-gray-700 border-gray-600'
+                  } border-2 text-white font-black py-3 px-4 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2`}
+                >
+                  <Zap className="w-5 h-5" />
+                  TURBO
+                </button>
+
+                {/* AutoSpin */}
+                <button
+                  onClick={toggleAutoSpin}
+                  disabled={isSpinning || freeSpinsMode}
+                  className={`${
+                    autoSpinActive 
+                      ? 'bg-red-600 border-red-400' 
+                      : 'bg-purple-700 border-purple-600'
+                  } border-2 text-white font-black py-3 px-4 rounded-lg transition-all active:scale-95`}
+                >
+                  {autoSpinActive ? 'STOP AUTO' : 'AUTO SPIN'}
+                </button>
+                
+                {/* Counter AutoSpin */}
+                {autoSpinActive && (
+                  <div className="text-yellow-300 text-sm text-center font-bold">
+                    {autoSpinMode === 'spins' 
+                      ? `${autoSpinSpinsRemaining} giri` 
+                      : `${autoSpinBudgetRemaining.toFixed(1)} token`}
+                  </div>
+                )}
+
+                {/* INFO FREE SPINS - Nello spazio sotto */}
+                {freeSpinsMode && (
+                  <div className="mt-2 bg-purple-900/50 rounded-lg p-3 border-2 border-purple-500">
+                    <div className="text-yellow-300 text-xs font-bold mb-2 text-center">
+                      FREE SPINS
+                    </div>
+                    <div className="text-white text-lg font-black text-center mb-2">
+                      {10 - freeSpinsRemaining + 1} / 10
+                    </div>
+                    {expandingSymbol && (
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="text-yellow-400 text-xs">Simbolo:</div>
+                        <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-lg p-1 border-2 border-yellow-400">
+                          <img 
+                            src={SYMBOLS[expandingSymbol].img}
+                            alt={SYMBOLS[expandingSymbol].name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'contain'
+                            }}
+                          />
+                        </div>
+                        <div className="text-yellow-300 text-xs font-bold text-center">
+                          {SYMBOLS[expandingSymbol].name}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+            </div>
 
-              <button 
-                onClick={() => {
-                  setCurrentBet(50);
-                  setLines(10);
-                }}
-                disabled={isSpinning || freeSpinsMode}
-                className="bg-gradient-to-b from-orange-600 to-orange-700 hover:from-orange-500 hover:to-orange-600 disabled:opacity-50 text-white font-black py-4 px-6 rounded-xl shadow-lg border-2 border-orange-400 transition-all active:scale-95"
-              >
-                <div className="text-xs mb-1">MAX</div>
-                <div className="text-lg">BET</div>
-              </button>
-
-              <button 
-                disabled={true}
-                className="bg-gradient-to-b from-gray-700 to-gray-800 opacity-50 text-yellow-400 font-black py-4 px-6 rounded-xl shadow-lg border-2 border-gray-600 cursor-not-allowed"
-              >
-                <div className="text-xs mb-1 text-gray-400">AUTO</div>
-                <div className="text-lg">PLAY</div>
-              </button>
-
+            {/* PULSANTE SPIN */}
+            <div className="mt-6">
               <button 
                 onClick={handleSpin}
-                disabled={isSpinning || (!freeSpinsMode && credits < totalBet)}
-                className="bg-gradient-to-b from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-black py-4 px-8 rounded-xl shadow-lg border-4 border-green-400 disabled:border-gray-500 transition-all active:scale-95 disabled:cursor-not-allowed relative overflow-hidden group"
+                disabled={isSpinning || (!freeSpinsMode && credits < currentBet) || autoSpinActive}
+                className="w-full bg-gradient-to-b from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-black py-6 px-8 rounded-2xl shadow-lg border-4 border-green-400 disabled:border-gray-500 transition-all active:scale-95 disabled:cursor-not-allowed relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                <div className="relative z-10">
-                  <div className="text-sm mb-1">▶</div>
-                  <div className="text-xl">{isSpinning ? 'SPIN...' : 'START'}</div>
+                <div className="relative z-10 text-4xl">
+                  {isSpinning ? '⏳ SPIN...' : '▶ SPIN!'}
                 </div>
               </button>
-            </div>
-          </div>
-
-          {/* Display crediti */}
-          <div className="mt-6 flex justify-between items-center px-4">
-            <div className="bg-black/80 border-2 border-yellow-600 rounded-lg px-6 py-3">
-              <div className="text-yellow-400 text-sm font-semibold mb-1">CREDITS</div>
-              <div className="text-yellow-300 text-3xl font-black">{credits.toFixed(2)}</div>
-            </div>
-
-            <div className={`bg-black/80 border-2 rounded-lg px-6 py-3 transition-all ${
-              currentWin > 0 ? 'border-green-400 animate-pulse' : 'border-yellow-600'
-            }`}>
-              <div className="text-yellow-400 text-sm font-semibold mb-1">WIN</div>
-              <div className={`text-3xl font-black ${
-                currentWin > 0 ? 'text-green-400' : 'text-gray-400'
-              }`}>
-                {currentWin.toFixed(2)}
-              </div>
             </div>
           </div>
         </div>
@@ -778,23 +977,13 @@ function InfernoFortuneSlot() {
 
       {/* CSS animazioni */}
       <style>{`
-        @keyframes reel-scroll {
-          from { transform: translateY(0); }
-          to { transform: translateY(-100%); }
-        }
-        
-        .animate-reel-scroll {
-          animation: reel-scroll 0.15s linear infinite;
-        }
-
         @keyframes reel-spin {
-          0% { filter: blur(0px); }
-          50% { filter: blur(2px); }
-          100% { filter: blur(0px); }
+          0% { transform: translateY(0); }
+          100% { transform: translateY(-100%); }
         }
         
         .animate-reel-spin {
-          animation: reel-spin 0.2s ease-in-out infinite;
+          animation: reel-spin ${turboMode ? '0.05s' : '0.15s'} linear infinite;
         }
 
         @keyframes pulse-win {
@@ -812,64 +1001,20 @@ function InfernoFortuneSlot() {
           animation: pulse-win 0.6s infinite;
         }
 
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-in;
-        }
-
-        @keyframes scale-pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-        }
-        
-        .animate-scale-pulse {
-          animation: scale-pulse 1s ease-in-out infinite;
-        }
-
-        @keyframes glow {
+        @keyframes scatter-flash {
           0%, 100% { 
-            text-shadow: 0 0 20px rgba(252, 211, 77, 0.8),
-                         0 0 40px rgba(252, 211, 77, 0.6);
+            box-shadow: 0 0 30px rgba(250, 204, 21, 1);
+            border-color: rgba(250, 204, 21, 1);
           }
           50% { 
-            text-shadow: 0 0 30px rgba(252, 211, 77, 1),
-                         0 0 60px rgba(252, 211, 77, 0.8);
+            box-shadow: 0 0 50px rgba(250, 204, 21, 1);
+            border-color: rgba(251, 191, 36, 1);
+            transform: scale(1.2);
           }
         }
         
-        .animate-glow {
-          animation: glow 1s ease-in-out infinite;
-        }
-
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        
-        .animate-spin-slow {
-          animation: spin-slow 3s linear infinite;
-        }
-
-        @keyframes pulse-slow {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.9; }
-        }
-        
-        .animate-pulse-slow {
-          animation: pulse-slow 2s ease-in-out infinite;
-        }
-
-        @keyframes rotate-y {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
-        }
-        
-        .animate-rotate-y {
-          animation: rotate-y 0.5s linear infinite;
+        .animate-scatter-flash {
+          animation: scatter-flash 0.5s infinite;
         }
 
         @keyframes pulse {
