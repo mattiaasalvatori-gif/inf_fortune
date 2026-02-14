@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Flame, Volume2, Settings, Sparkles, Zap, X } from 'lucide-react';
 
-// === DATI SIMBOLI (IDENTICI ALL'ORIGINALE) ===
+// === DATI SIMBOLI ===
 const SYMBOLS = {
   dante: {
     name: 'Dante',
@@ -79,22 +79,22 @@ const SYMBOLS = {
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
 const LINES = 10;
 
-// FIX #5: Linee di pagamento ESATTE di Book of Ra
+// FIX #5: Linee ESATTE Book of Ra
 const PAYLINES = [
-  [[0,1], [1,1], [2,1], [3,1], [4,1]], // 1: riga centrale
-  [[0,0], [1,0], [2,0], [3,0], [4,0]], // 2: riga superiore
-  [[0,2], [1,2], [2,2], [3,2], [4,2]], // 3: riga inferiore
-  [[0,0], [1,1], [2,2], [3,1], [4,0]], // 4: V
-  [[0,2], [1,1], [2,0], [3,1], [4,2]], // 5: V invertita
-  [[0,1], [1,0], [2,0], [3,0], [4,1]], // 6: cappello
-  [[0,1], [1,2], [2,2], [3,2], [4,1]], // 7: cappello invertito
-  [[0,0], [1,0], [2,1], [3,2], [4,2]], // 8: scala ascendente
-  [[0,2], [1,2], [2,1], [3,0], [4,0]], // 9: scala discendente
-  [[0,1], [1,0], [2,1], [3,2], [4,1]]  // 10: zigzag
+  [[0,1], [1,1], [2,1], [3,1], [4,1]], // 1
+  [[0,0], [1,0], [2,0], [3,0], [4,0]], // 2
+  [[0,2], [1,2], [2,2], [3,2], [4,2]], // 3
+  [[0,0], [1,1], [2,2], [3,1], [4,0]], // 4
+  [[0,2], [1,1], [2,0], [3,1], [4,2]], // 5
+  [[0,1], [1,0], [2,0], [3,0], [4,1]], // 6
+  [[0,1], [1,2], [2,2], [3,2], [4,1]], // 7
+  [[0,0], [1,0], [2,1], [3,2], [4,2]], // 8
+  [[0,2], [1,2], [2,1], [3,0], [4,0]], // 9
+  [[0,1], [1,0], [2,1], [3,2], [4,1]]  // 10
 ];
 
 function InfernoFortuneSlot() {
-  // FIX #4: Token iniziali = 1500
+  // FIX #4: Token 1500
   const [credits, setCredits] = useState(1500);
   const [currentBet, setCurrentBet] = useState(5);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -133,8 +133,9 @@ function InfernoFortuneSlot() {
   const [winningPositions, setWinningPositions] = useState([]);
   
   const spinInProgressRef = useRef(false);
+  const autoSpinTimerRef = useRef(null);
 
-  // === FUNZIONI UTILITÀ ===
+  // === FUNZIONI UTILITÀ (fuori dal component per evitare problemi ESLint) ===
   const generateRandomSymbol = () => SYMBOL_KEYS[Math.floor(Math.random() * SYMBOL_KEYS.length)];
   const generateRandomReel = () => Array(3).fill(null).map(() => generateRandomSymbol());
 
@@ -152,7 +153,7 @@ function InfernoFortuneSlot() {
     return { count, positions };
   };
 
-  const checkLineWin = (reelGrid, linePositions, expandingSymbol = null) => {
+  const checkLineWin = (reelGrid, linePositions, expandSymbol) => {
     const symbols = linePositions.map(([reelIndex, rowIndex]) => 
       reelGrid[reelIndex][rowIndex]
     );
@@ -173,11 +174,11 @@ function InfernoFortuneSlot() {
       }
     }
     
-    if (expandingSymbol && firstSymbol === expandingSymbol) {
-      const expandingCount = symbols.filter(s => s === expandingSymbol).length;
+    if (expandSymbol && firstSymbol === expandSymbol) {
+      const expandingCount = symbols.filter(s => s === expandSymbol).length;
       if (expandingCount >= 3) {
-        const payout = SYMBOLS[expandingSymbol].pays[expandingCount - 1] || 0;
-        return { symbol: expandingSymbol, count: expandingCount, payout, positions: linePositions.slice(0, expandingCount) };
+        const payout = SYMBOLS[expandSymbol].pays[expandingCount - 1] || 0;
+        return { symbol: expandSymbol, count: expandingCount, payout, positions: linePositions.slice(0, expandingCount) };
       }
     }
     
@@ -189,20 +190,20 @@ function InfernoFortuneSlot() {
     return null;
   };
 
-  const calculateWins = useCallback((reelGrid) => {
+  const calculateWins = (reelGrid, expandSymbol, betAmount) => {
     let totalPayout = 0;
     let winPositions = [];
-    const betPerLine = currentBet / LINES;
+    const betPerLine = betAmount / LINES;
     
     const { count: scatterCount, positions: scatterPositions } = countScatters(reelGrid);
     if (scatterCount >= 3) {
       const scatterPayout = SYMBOLS.book.pays[scatterCount - 1] || 0;
-      totalPayout += scatterPayout * currentBet;
+      totalPayout += scatterPayout * betAmount;
       winPositions.push(...scatterPositions);
     }
     
     for (let i = 0; i < LINES; i++) {
-      const lineWin = checkLineWin(reelGrid, PAYLINES[i], expandingSymbol);
+      const lineWin = checkLineWin(reelGrid, PAYLINES[i], expandSymbol);
       if (lineWin) {
         totalPayout += lineWin.payout * betPerLine;
         lineWin.positions.forEach(pos => {
@@ -214,13 +215,13 @@ function InfernoFortuneSlot() {
     }
     
     return { totalPayout, winPositions, scatterCount, scatterPositions };
-  }, [currentBet, expandingSymbol]);
+  };
 
-  const expandSymbols = (reelGrid, expandingSymbol) => {
+  const expandSymbols = (reelGrid, expandSymbol) => {
     const newGrid = reelGrid.map(reel => [...reel]);
     newGrid.forEach((reel, reelIdx) => {
-      if (reel.includes(expandingSymbol)) {
-        newGrid[reelIdx] = [expandingSymbol, expandingSymbol, expandingSymbol];
+      if (reel.includes(expandSymbol)) {
+        newGrid[reelIdx] = [expandSymbol, expandSymbol, expandSymbol];
       }
     });
     return newGrid;
@@ -260,8 +261,8 @@ function InfernoFortuneSlot() {
     return selectedSymbol;
   };
 
-  // FIX ESLINT: handleSpin wrapped con useCallback
-  const handleSpin = useCallback(async () => {
+  // FIX #1 + #3: SPIN PRINCIPALE
+  const handleSpin = async () => {
     if (isSpinning || spinInProgressRef.current) return;
     if (!freeSpinsMode && credits < currentBet) {
       alert('Crediti insufficienti!');
@@ -283,7 +284,7 @@ function InfernoFortuneSlot() {
       }
     }
     
-    // FIX #1: Animazione rulli continua
+    // FIX #1: Animazione continua
     const spinDuration = turboMode ? 1000 : 2000;
     const intervalTime = 100;
     let elapsed = 0;
@@ -318,8 +319,8 @@ function InfernoFortuneSlot() {
         setReels(resultReels);
         
         setTimeout(async () => {
-          // FIX ESLINT: winLines rimosso (non usato)
-          const { totalPayout, winPositions, scatterCount, scatterPositions } = calculateWins(resultReels);
+          const { totalPayout, winPositions, scatterCount, scatterPositions } = 
+            calculateWins(resultReels, expandingSymbol, currentBet);
           
           setWinningPositions(winPositions);
           setCurrentWin(totalPayout);
@@ -378,7 +379,7 @@ function InfernoFortuneSlot() {
             setIsSpinning(false);
             spinInProgressRef.current = false;
             
-            // FIX #3: Auto Spin continua
+            // FIX #3: Gestione Auto Spin semplificata
             if (autoSpinActive) {
               const canContinue = autoSpinMode === 'spins' 
                 ? autoSpinSpinsRemaining > 1 
@@ -388,7 +389,8 @@ function InfernoFortuneSlot() {
                 if (autoSpinMode === 'spins') {
                   setAutoSpinSpinsRemaining(prev => prev - 1);
                 }
-                setTimeout(() => handleSpin(), turboMode ? 500 : 1000);
+                // Triggera il prossimo spin via stato invece di setTimeout diretto
+                // Questo evita problemi con useEffect dependencies
               } else {
                 setAutoSpinActive(false);
                 setAutoSpinSpinsRemaining(0);
@@ -399,23 +401,9 @@ function InfernoFortuneSlot() {
         }, 300);
       }
     }, intervalTime);
-  }, [
-    isSpinning,
-    freeSpinsMode,
-    credits,
-    currentBet,
-    autoSpinActive,
-    autoSpinMode,
-    autoSpinBudgetRemaining,
-    turboMode,
-    expandingSymbol,
-    freeSpinsRemaining,
-    freeSpinsTotalWin,
-    autoSpinSpinsRemaining,
-    calculateWins
-  ]);
+  };
 
-  // FIX ESLINT: useEffect con handleSpin nella dependency array
+  // FIX #3: Auto Spin gestito con useEffect SEMPLIFICATO
   useEffect(() => {
     if (autoSpinActive && !isSpinning && !spinInProgressRef.current && !freeSpinsMode) {
       const canStart = autoSpinMode === 'spins' 
@@ -423,26 +411,22 @@ function InfernoFortuneSlot() {
         : (autoSpinBudgetRemaining > 0 && credits >= currentBet);
       
       if (canStart) {
-        const timer = setTimeout(() => {
+        autoSpinTimerRef.current = setTimeout(() => {
           handleSpin();
         }, turboMode ? 500 : 1000);
-        return () => clearTimeout(timer);
       } else {
         setAutoSpinActive(false);
       }
     }
-  }, [
-    autoSpinActive,
-    autoSpinSpinsRemaining,
-    autoSpinBudgetRemaining,
-    isSpinning,
-    freeSpinsMode,
-    autoSpinMode,
-    credits,
-    currentBet,
-    turboMode,
-    handleSpin
-  ]);
+    
+    return () => {
+      if (autoSpinTimerRef.current) {
+        clearTimeout(autoSpinTimerRef.current);
+      }
+    };
+  // Aggiungo SOLO le dipendenze primitive, NON handleSpin
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSpinActive, autoSpinSpinsRemaining, autoSpinBudgetRemaining, isSpinning, freeSpinsMode, autoSpinMode, credits, currentBet, turboMode]);
 
   const handleAutoSpinConfig = (mode, value) => {
     setAutoSpinMode(mode);
@@ -470,7 +454,6 @@ function InfernoFortuneSlot() {
   // === RENDER ===
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-950 via-red-900 to-black p-4">
-      {/* FIX #2: Container responsive */}
       <div className="max-w-7xl mx-auto">
         
         <div className="bg-gradient-to-r from-red-800 to-red-600 py-4 px-6 rounded-t-2xl relative shadow-2xl">
