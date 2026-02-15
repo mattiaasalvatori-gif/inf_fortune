@@ -1,943 +1,741 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Flame, ArrowLeft, Volume2, Settings, Trophy, Sparkles, Zap, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from ‘react’;
+import { Flame, ArrowLeft, Volume2, Settings, Trophy, Sparkles, Zap, X } from ‘lucide-react’;
 
 // === DATI SIMBOLI ===
 const SYMBOLS = {
-  dante: {
-    name: 'Dante',
-    type: 'high',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769968270/1_Esploratore_Dante_a8kswr.png',
-    pays: [0, 0, 100, 1000, 5000],
-    canExpand: true
-  },
-  book: {
-    name: 'Libro',
-    type: 'wild-scatter',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/2_Libro_Commedia_qbcgfd.png',
-    pays: [0, 0, 2, 20, 200],
-    scatter: true,
-    wild: true
-  },
-  beatrice: {
-    name: 'Beatrice',
-    type: 'high',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958222/3_Faraone_Beatrice_fimpos.png',
-    pays: [0, 0, 40, 400, 2000],
-    canExpand: true
-  },
-  virgilio: {
-    name: 'Virgilio',
-    type: 'high',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/4_Iside_Virgilio_tmkqfn.png',
-    pays: [0, 0, 40, 400, 2000],
-    canExpand: true
-  },
-  caronte: {
-    name: 'Caronte',
-    type: 'medium',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/5_Scarabeo_Moneta_caronte_us2hwz.png',
-    pays: [0, 0, 30, 150, 750],
-    canExpand: true
-  },
-  A: {
-    name: 'Asso',
-    type: 'low',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/6_Asso_t5xac7.png',
-    pays: [0, 0, 10, 40, 150],
-    canExpand: true
-  },
-  K: {
-    name: 'Re',
-    type: 'low',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958219/7_Re_iwnwiy.png',
-    pays: [0, 0, 10, 40, 150],
-    canExpand: true
-  },
-  Q: {
-    name: 'Donna',
-    type: 'low',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958221/8_Donna_gmbq9e.png',
-    pays: [0, 0, 10, 40, 150],
-    canExpand: true
-  },
-  J: {
-    name: 'Fante',
-    type: 'low',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958221/9_Fante_wdsxdg.png',
-    pays: [0, 0, 10, 40, 150],
-    canExpand: true
-  },
-  Ten: {
-    name: 'Dieci',
-    type: 'low',
-    img: 'https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958225/10_Dieci_uly2im.png',
-    pays: [0, 0, 10, 40, 150],
-    canExpand: true
-  }
+dante: {
+name: ‘Dante’,
+type: ‘high’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769968270/1_Esploratore_Dante_a8kswr.png’,
+pays: [0, 0, 100, 1000, 5000],
+canExpand: true
+},
+book: {
+name: ‘Libro’,
+type: ‘wild-scatter’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/2_Libro_Commedia_qbcgfd.png’,
+pays: [0, 0, 2, 20, 200],
+scatter: true,
+wild: true
+},
+beatrice: {
+name: ‘Beatrice’,
+type: ‘high’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958222/3_Faraone_Beatrice_fimpos.png’,
+pays: [0, 0, 40, 400, 2000],
+canExpand: true
+},
+virgilio: {
+name: ‘Virgilio’,
+type: ‘high’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/4_Iside_Virgilio_tmkqfn.png’,
+pays: [0, 0, 40, 400, 2000],
+canExpand: true
+},
+caronte: {
+name: ‘Caronte’,
+type: ‘medium’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/5_Scarabeo_Moneta_caronte_us2hwz.png’,
+pays: [0, 0, 30, 150, 750],
+canExpand: true
+},
+A: {
+name: ‘Asso’,
+type: ‘low’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958220/6_Asso_t5xac7.png’,
+pays: [0, 0, 10, 40, 150],
+canExpand: true
+},
+K: {
+name: ‘Re’,
+type: ‘low’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958219/7_Re_iwnwiy.png’,
+pays: [0, 0, 10, 40, 150],
+canExpand: true
+},
+Q: {
+name: ‘Donna’,
+type: ‘low’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958221/8_Donna_gmbq9e.png’,
+pays: [0, 0, 10, 40, 150],
+canExpand: true
+},
+J: {
+name: ‘Fante’,
+type: ‘low’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958221/9_Fante_wdsxdg.png’,
+pays: [0, 0, 10, 40, 150],
+canExpand: true
+},
+Ten: {
+name: ‘Dieci’,
+type: ‘low’,
+img: ‘https://res.cloudinary.com/dxqqeun0c/image/upload/v1769958225/10_Dieci_uly2im.png’,
+pays: [0, 0, 10, 40, 150],
+canExpand: true
+}
 };
 
 const SYMBOL_KEYS = Object.keys(SYMBOLS);
 const LINES = 10;
 
-// ✅ FIX #5: Linee di pagamento BOOK OF RA (esatte dalla foto)
+// ✅ LINEE BOOK OF RA ESATTE (dalla foto payment_lines_BoR.png)
 const PAYLINES = [
-  [[0,1], [1,1], [2,1], [3,1], [4,1]], // Linea 1 - centrale
-  [[0,0], [1,0], [2,0], [3,0], [4,0]], // Linea 2 - alta
-  [[0,2], [1,2], [2,2], [3,2], [4,2]], // Linea 3 - bassa
-  [[0,0], [1,1], [2,2], [3,1], [4,0]], // Linea 4 - V
-  [[0,2], [1,1], [2,0], [3,1], [4,2]], // Linea 5 - V invertita
-  [[0,1], [1,0], [2,0], [3,0], [4,1]], // Linea 6 - tetto
-  [[0,1], [1,2], [2,2], [3,2], [4,1]], // Linea 7 - pavimento
-  [[0,0], [1,0], [2,1], [3,2], [4,2]], // Linea 8 - scala su
-  [[0,2], [1,2], [2,1], [3,0], [4,0]], // Linea 9 - scala giù
-  [[0,1], [1,0], [2,1], [3,2], [4,1]]  // Linea 10 - W
+[[0,1], [1,1], [2,1], [3,1], [4,1]], // Linea 1 - Centro (blu)
+[[0,0], [1,0], [2,0], [3,0], [4,0]], // Linea 2 - Alto (rosa)
+[[0,2], [1,2], [2,2], [3,2], [4,2]], // Linea 3 - Basso (verde)
+[[0,0], [1,1], [2,2], [3,1], [4,0]], // Linea 4 - V (giallo)
+[[0,2], [1,1], [2,0], [3,1], [4,2]], // Linea 5 - V rovesciato (rosa)
+[[0,1], [1,0], [2,0], [3,0], [4,1]], // Linea 6 - U (lime)
+[[0,1], [1,2], [2,2], [3,2], [4,1]], // Linea 7 - U rovesciato (cyan)
+[[0,0], [1,0], [2,1], [3,2], [4,2]], // Linea 8 - Scala ascendente (celeste)
+[[0,2], [1,2], [2,1], [3,0], [4,0]], // Linea 9 - Scala discendente (verde)
+[[0,1], [1,0], [2,1], [3,2], [4,1]]  // Linea 10 - W (viola)
 ];
 
 function InfernoFortuneSlot() {
-  // ✅ FIX #4: Crediti iniziali a 150
-  const [credits, setCredits] = useState(150);
-  const [currentBet, setCurrentBet] = useState(5);
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [currentWin, setCurrentWin] = useState(0);
-  const [lastWin, setLastWin] = useState(0);
-  
-  const [turboMode, setTurboMode] = useState(false);
-  const [showBetModal, setShowBetModal] = useState(false);
-  
-  const [autoSpinActive, setAutoSpinActive] = useState(false);
-  const [showAutoSpinModal, setShowAutoSpinModal] = useState(false);
-  const [autoSpinSpinsRemaining, setAutoSpinSpinsRemaining] = useState(0);
-  const [autoSpinBudgetRemaining, setAutoSpinBudgetRemaining] = useState(0);
-  const [autoSpinMode, setAutoSpinMode] = useState('spins');
-  
-  const [freeSpinsMode, setFreeSpinsMode] = useState(false);
-  const [freeSpinsRemaining, setFreeSpinsRemaining] = useState(0);
-  const [expandingSymbol, setExpandingSymbol] = useState(null);
-  const [freeSpinsTotalWin, setFreeSpinsTotalWin] = useState(0);
-  
-  const [showScatterCelebration, setShowScatterCelebration] = useState(false);
-  const [showSymbolSelection, setShowSymbolSelection] = useState(false);
-  const [symbolSelectionOptions, setSymbolSelectionOptions] = useState([]);
-  const [selectedSymbolIndex, setSelectedSymbolIndex] = useState(0);
-  
-  const [reels, setReels] = useState([
-    ['virgilio', 'K', 'beatrice'],
-    ['Q', 'dante', 'A'],
-    ['caronte', 'virgilio', 'J'],
-    ['book', 'Q', 'Ten'],
-    ['beatrice', 'K', 'virgilio']
-  ]);
-  const [spinningReels, setSpinningReels] = useState([false, false, false, false, false]);
-  const [reelAnimationSymbols, setReelAnimationSymbols] = useState([[], [], [], [], []]);
-  
-  const [winningPositions, setWinningPositions] = useState([]);
-  const [winningLines, setWinningLines] = useState([]);
+// ✅ FIX #4: Token iniziali 150
+const [credits, setCredits] = useState(150);
+const [currentBet, setCurrentBet] = useState(5);
+const [isSpinning, setIsSpinning] = useState(false);
+const [currentWin, setCurrentWin] = useState(0);
+const [lastWin, setLastWin] = useState(0);
 
-  // ✅ FIX #3: useRef per autospin
-  const autoSpinTimerRef = useRef(null);
-  const spinInProgressRef = useRef(false);
+const [turboMode, setTurboMode] = useState(false);
+const [showBetModal, setShowBetModal] = useState(false);
 
-  const generateRandomSymbol = () => {
-    return SYMBOL_KEYS[Math.floor(Math.random() * SYMBOL_KEYS.length)];
-  };
+// AutoSpin
+const [autoSpinActive, setAutoSpinActive] = useState(false);
+const [showAutoSpinModal, setShowAutoSpinModal] = useState(false);
+const [autoSpinSpinsRemaining, setAutoSpinSpinsRemaining] = useState(0);
+const [autoSpinBudgetRemaining, setAutoSpinBudgetRemaining] = useState(0);
+const [autoSpinMode, setAutoSpinMode] = useState(‘spins’);
+const autoSpinTimerRef = useRef(null);
+const spinInProgressRef = useRef(false);
 
-  const generateRandomReel = () => {
-    return Array(3).fill(null).map(() => generateRandomSymbol());
-  };
+// Free Spins
+const [freeSpinsMode, setFreeSpinsMode] = useState(false);
+const [freeSpinsRemaining, setFreeSpinsRemaining] = useState(0);
+const [expandingSymbol, setExpandingSymbol] = useState(null);
+const [freeSpinsTotalWin, setFreeSpinsTotalWin] = useState(0);
 
-  const countScatters = (reelGrid) => {
-    let count = 0;
-    let positions = [];
-    reelGrid.forEach((reel, reelIdx) => {
-      reel.forEach((symbol, rowIdx) => {
-        if (symbol === 'book') {
-          count++;
-          positions.push([reelIdx, rowIdx]);
-        }
-      });
+// Animazioni
+const [showScatterCelebration, setShowScatterCelebration] = useState(false);
+const [showSymbolSelection, setShowSymbolSelection] = useState(false);
+const [symbolSelectionOptions, setSymbolSelectionOptions] = useState([]);
+const [selectedSymbolIndex, setSelectedSymbolIndex] = useState(0);
+
+// Rulli
+const [reels, setReels] = useState([
+[‘virgilio’, ‘K’, ‘beatrice’],
+[‘Q’, ‘dante’, ‘A’],
+[‘caronte’, ‘virgilio’, ‘J’],
+[‘book’, ‘Q’, ‘Ten’],
+[‘beatrice’, ‘K’, ‘virgilio’]
+]);
+const [spinningReels, setSpinningReels] = useState([false, false, false, false, false]);
+
+const [winningPositions, setWinningPositions] = useState([]);
+const [winningLines, setWinningLines] = useState([]);
+
+const generateRandomSymbol = () => {
+return SYMBOL_KEYS[Math.floor(Math.random() * SYMBOL_KEYS.length)];
+};
+
+const generateRandomReel = () => {
+return Array(3).fill(null).map(() => generateRandomSymbol());
+};
+
+const countScatters = (reelGrid) => {
+let count = 0;
+let positions = [];
+reelGrid.forEach((reel, reelIdx) => {
+reel.forEach((symbol, rowIdx) => {
+if (symbol === ‘book’) {
+count++;
+positions.push([reelIdx, rowIdx]);
+}
+});
+});
+return { count, positions };
+};
+
+const checkLineWin = (reelGrid, linePositions, expandingSymbol = null) => {
+const symbols = linePositions.map(([reelIndex, rowIndex]) =>
+reelGrid[reelIndex][rowIndex]
+);
+
+```
+let firstSymbol = symbols[0];
+let matchCount = 1;
+
+for (let i = 1; i < symbols.length; i++) {
+  const currentSymbol = symbols[i];
+  
+  if (currentSymbol === 'book' || currentSymbol === firstSymbol) {
+    matchCount++;
+  } else if (firstSymbol === 'book') {
+    firstSymbol = currentSymbol;
+    matchCount++;
+  } else {
+    break;
+  }
+}
+
+if (expandingSymbol && firstSymbol === expandingSymbol) {
+  const expandingCount = symbols.filter(s => s === expandingSymbol).length;
+  if (expandingCount >= 3) {
+    const payout = SYMBOLS[expandingSymbol].pays[expandingCount - 1] || 0;
+    return { symbol: expandingSymbol, count: expandingCount, payout, positions: linePositions.slice(0, expandingCount) };
+  }
+}
+
+if (matchCount >= 3) {
+  const payout = SYMBOLS[firstSymbol].pays[matchCount - 1] || 0;
+  return { symbol: firstSymbol, count: matchCount, payout, positions: linePositions.slice(0, matchCount) };
+}
+
+return null;
+```
+
+};
+
+const calculateWins = (reelGrid) => {
+let totalPayout = 0;
+let winLines = [];
+let winPositions = [];
+const betPerLine = currentBet / LINES;
+
+```
+PAYLINES.forEach((linePositions, lineIndex) => {
+  const win = checkLineWin(reelGrid, linePositions, expandingSymbol);
+  if (win && win.payout > 0) {
+    const linePayout = win.payout * betPerLine;
+    totalPayout += linePayout;
+    winLines.push(lineIndex);
+    winPositions.push(...win.positions);
+  }
+});
+
+const uniquePositions = Array.from(
+  new Set(winPositions.map(pos => JSON.stringify(pos)))
+).map(str => JSON.parse(str));
+
+return {
+  totalPayout,
+  winningLines: winLines,
+  winningPositions: uniquePositions
+};
+```
+
+};
+
+const handleSpin = async () => {
+if (isSpinning || spinInProgressRef.current) return;
+
+```
+spinInProgressRef.current = true;
+setIsSpinning(true);
+setCurrentWin(0);
+setWinningPositions([]);
+setWinningLines([]);
+
+if (!freeSpinsMode) {
+  if (credits < currentBet) {
+    setIsSpinning(false);
+    spinInProgressRef.current = false;
+    return;
+  }
+  setCredits(prev => prev - currentBet);
+}
+
+// ✅ FIX #1: Genera simboli finali PRIMA dell'animazione
+const finalReels = [
+  generateRandomReel(),
+  generateRandomReel(),
+  generateRandomReel(),
+  generateRandomReel(),
+  generateRandomReel()
+];
+
+// ✅ FIX #1: Avvia SOLO animazione spin, NON scomparsa
+setSpinningReels([true, true, true, true, true]);
+
+const spinDuration = turboMode ? 800 : 1500;
+const reelStopDelay = turboMode ? 100 : 200;
+
+// Ferma i rulli progressivamente e mostra simboli finali
+for (let i = 0; i < 5; i++) {
+  setTimeout(() => {
+    setSpinningReels(prev => {
+      const newSpinning = [...prev];
+      newSpinning[i] = false;
+      return newSpinning;
     });
-    return { count, positions };
-  };
-
-  const checkLineWin = (reelGrid, linePositions, expandingSymbol = null) => {
-    const symbols = linePositions.map(([reelIndex, rowIndex]) => 
-      reelGrid[reelIndex][rowIndex]
-    );
     
-    let firstSymbol = symbols[0];
-    let matchCount = 1;
-    
-    for (let i = 1; i < symbols.length; i++) {
-      const currentSymbol = symbols[i];
-      
-      if (currentSymbol === 'book' || currentSymbol === firstSymbol) {
-        matchCount++;
-      } else if (firstSymbol === 'book') {
-        firstSymbol = currentSymbol;
-        matchCount++;
-      } else {
-        break;
-      }
-    }
-    
-    if (expandingSymbol && firstSymbol === expandingSymbol) {
-      const expandingCount = symbols.filter(s => s === expandingSymbol).length;
-      if (expandingCount >= 3) {
-        const payout = SYMBOLS[expandingSymbol].pays[expandingCount - 1] || 0;
-        return { symbol: expandingSymbol, count: expandingCount, payout, positions: linePositions.slice(0, expandingCount) };
-      }
-    }
-    
-    if (matchCount >= 3) {
-      const payout = SYMBOLS[firstSymbol].pays[matchCount - 1] || 0;
-      return { symbol: firstSymbol, count: matchCount, payout, positions: linePositions.slice(0, matchCount) };
-    }
-    
-    return null;
-  };
-
-  const calculateWins = (reelGrid) => {
-    let totalPayout = 0;
-    let winLines = [];
-    let winPositions = [];
-    const betPerLine = currentBet / LINES;
-    
-    const { count: scatterCount, positions: scatterPositions } = countScatters(reelGrid);
-    if (scatterCount >= 3) {
-      const scatterPayout = SYMBOLS.book.pays[scatterCount - 1] || 0;
-      totalPayout += scatterPayout * currentBet;
-      winPositions.push(...scatterPositions);
-    }
-    
-    for (let i = 0; i < LINES; i++) {
-      const lineWin = checkLineWin(reelGrid, PAYLINES[i], expandingSymbol);
-      if (lineWin) {
-        totalPayout += lineWin.payout * betPerLine;
-        winLines.push(i);
-        lineWin.positions.forEach(pos => {
-          if (!winPositions.some(([r, ro]) => r === pos[0] && ro === pos[1])) {
-            winPositions.push(pos);
-          }
-        });
-      }
-    }
-    
-    return { totalPayout, winLines, winPositions, scatterCount, scatterPositions };
-  };
-
-  const expandSymbols = (reelGrid, expandingSymbol) => {
-    const newGrid = reelGrid.map(reel => [...reel]);
-    newGrid.forEach((reel, reelIdx) => {
-      if (reel.includes(expandingSymbol)) {
-        newGrid[reelIdx] = [expandingSymbol, expandingSymbol, expandingSymbol];
-      }
+    setReels(prev => {
+      const newReels = [...prev];
+      newReels[i] = finalReels[i];
+      return newReels;
     });
-    return newGrid;
-  };
+  }, spinDuration + (i * reelStopDelay));
+}
 
-  // ✅ FIX #1: Animazione rulli SENZA scomparsa
-  const animateReelSpin = async (reelIndex, finalSymbols, delay = 0) => {
-    const spinDuration = turboMode ? 500 : 2000;
-    
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const animSymbols = Array(20).fill(null).map(() => generateRandomSymbol());
-        
-        setReelAnimationSymbols(prev => {
-          const newSymbols = [...prev];
-          newSymbols[reelIndex] = animSymbols;
-          return newSymbols;
-        });
-        
-        setSpinningReels(prev => {
-          const newSpinning = [...prev];
-          newSpinning[reelIndex] = true;
-          return newSpinning;
-        });
-        
-        setTimeout(() => {
-          setSpinningReels(prev => {
-            const newSpinning = [...prev];
-            newSpinning[reelIndex] = false;
-            return newSpinning;
-          });
-          
-          setReels(prev => {
-            const newReels = [...prev];
-            newReels[reelIndex] = finalSymbols;
-            return newReels;
-          });
-          
-          resolve();
-        }, spinDuration + delay);
-      }, delay);
-    });
-  };
-
-  const playScatterCelebration = async (scatterPositions) => {
-    setShowScatterCelebration(true);
-    setWinningPositions(scatterPositions);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setShowScatterCelebration(false);
-  };
-
-  const playSymbolSelection = async () => {
-    const expandableSymbols = SYMBOL_KEYS.filter(key => 
-      key !== 'book' && SYMBOLS[key].canExpand
-    );
-    
-    setSymbolSelectionOptions(expandableSymbols);
-    setShowSymbolSelection(true);
-    
-    const spins = 30;
-    const spinDuration = 100;
-    
-    for (let i = 0; i < spins; i++) {
-      setSelectedSymbolIndex(i % expandableSymbols.length);
-      await new Promise(resolve => setTimeout(resolve, spinDuration));
-    }
-    
-    const finalIndex = Math.floor(Math.random() * expandableSymbols.length);
-    setSelectedSymbolIndex(finalIndex);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const selectedSymbol = expandableSymbols[finalIndex];
-    setExpandingSymbol(selectedSymbol);
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setShowSymbolSelection(false);
-    
-    return selectedSymbol;
-  };
-
-  const handleSpin = async () => {
-    if (isSpinning || spinInProgressRef.current) return;
-    
-    if (!freeSpinsMode && credits < currentBet) return;
-    
-    spinInProgressRef.current = true;
-    setIsSpinning(true);
-    setWinningPositions([]);
-    setWinningLines([]);
-    setCurrentWin(0);
-    
-    if (!freeSpinsMode) {
-      setCredits(prev => prev - currentBet);
-      
-      if (autoSpinActive && autoSpinMode === 'budget') {
-        setAutoSpinBudgetRemaining(prev => prev - currentBet);
-      }
-    }
-    
-    const finalReels = Array(5).fill(null).map(() => generateRandomReel());
-    
-    const reelDelay = turboMode ? 50 : 200;
-    const reelPromises = finalReels.map((finalReel, index) => 
-      animateReelSpin(index, finalReel, index * reelDelay)
-    );
-    
-    await Promise.all(reelPromises);
-    
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    let resultReels = finalReels;
-    
-    if (freeSpinsMode && expandingSymbol) {
-      resultReels = expandSymbols(finalReels, expandingSymbol);
-      setReels(resultReels);
-      await new Promise(resolve => setTimeout(resolve, 800));
-    }
-    
-    const { totalPayout, winLines, winPositions, scatterCount, scatterPositions } = calculateWins(resultReels);
-    
+setTimeout(() => {
+  const { totalPayout, winningLines: winLines, winningPositions: winPos } = calculateWins(finalReels);
+  
+  if (winPos.length > 0) {
+    setWinningPositions(winPos);
     setWinningLines(winLines);
-    setWinningPositions(winPositions);
     setCurrentWin(totalPayout);
     setLastWin(totalPayout);
     
-    if (totalPayout > 0) {
-      setCredits(prev => prev + totalPayout);
-      if (freeSpinsMode) {
-        setFreeSpinsTotalWin(prev => prev + totalPayout);
-      }
+    if (freeSpinsMode) {
+      setFreeSpinsTotalWin(prev => prev + totalPayout);
     }
     
-    if (scatterCount >= 3) {
-      if (autoSpinActive) {
-        setAutoSpinActive(false);
-        setAutoSpinSpinsRemaining(0);
-        setAutoSpinBudgetRemaining(0);
-      }
+    setCredits(prev => prev + totalPayout);
+  }
+
+  const { count: scatterCount } = countScatters(finalReels);
+  
+  if (scatterCount >= 3 && !freeSpinsMode) {
+    setShowScatterCelebration(true);
+    
+    setTimeout(() => {
+      setShowScatterCelebration(false);
       
-      await playScatterCelebration(scatterPositions);
-      
-      if (freeSpinsMode) {
-        setFreeSpinsRemaining(prev => prev + 10);
-      } else {
-        await playSymbolSelection();
-        setFreeSpinsMode(true);
-        setFreeSpinsRemaining(10);
+      const expandableSymbols = SYMBOL_KEYS.filter(key => 
+        SYMBOLS[key].canExpand && key !== 'book'
+      );
+      setSymbolSelectionOptions(expandableSymbols);
+      setSelectedSymbolIndex(0);
+      setShowSymbolSelection(true);
+    }, turboMode ? 1000 : 2000);
+  } else if (freeSpinsMode) {
+    const newRemaining = freeSpinsRemaining - 1;
+    setFreeSpinsRemaining(newRemaining);
+    
+    if (newRemaining === 0) {
+      setTimeout(() => {
+        alert(`🎉 FREE SPINS COMPLETATI!\n\nVincita totale: ${freeSpinsTotalWin.toFixed(2)} token`);
+        setFreeSpinsMode(false);
+        setExpandingSymbol(null);
         setFreeSpinsTotalWin(0);
         setIsSpinning(false);
         spinInProgressRef.current = false;
-        
-        return;
-      }
+      }, turboMode ? 500 : 1000);
+      return;
     }
-    
-    if (freeSpinsMode) {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const remaining = freeSpinsRemaining - 1;
-      setFreeSpinsRemaining(remaining);
-      
-      if (remaining > 0) {
-        setIsSpinning(false);
-        spinInProgressRef.current = false;
-        setTimeout(() => handleSpin(), 1000);
+  }
+
+  setIsSpinning(false);
+  spinInProgressRef.current = false;
+}, spinDuration + (5 * reelStopDelay) + (turboMode ? 300 : 500));
+```
+
+};
+
+const startFreeSpins = (symbol) => {
+setExpandingSymbol(symbol);
+setFreeSpinsRemaining(10);
+setFreeSpinsMode(true);
+setFreeSpinsTotalWin(0);
+setShowSymbolSelection(false);
+};
+
+const toggleAutoSpin = () => {
+if (autoSpinActive) {
+setAutoSpinActive(false);
+if (autoSpinTimerRef.current) {
+clearTimeout(autoSpinTimerRef.current);
+autoSpinTimerRef.current = null;
+}
+} else {
+setShowAutoSpinModal(true);
+}
+};
+
+const startAutoSpin = (mode, value) => {
+setAutoSpinMode(mode);
+if (mode === ‘spins’) {
+setAutoSpinSpinsRemaining(value);
+} else {
+setAutoSpinBudgetRemaining(value);
+}
+setAutoSpinActive(true);
+setShowAutoSpinModal(false);
+};
+
+// ✅ FIX #3: useEffect per gestire AutoSpin
+useEffect(() => {
+if (autoSpinActive && !isSpinning && !spinInProgressRef.current && !freeSpinsMode && !showScatterCelebration && !showSymbolSelection) {
+const canStart = autoSpinMode === ‘spins’
+? autoSpinSpinsRemaining > 0
+: (autoSpinBudgetRemaining > 0 && credits >= currentBet);
+
+```
+  if (canStart) {
+    autoSpinTimerRef.current = setTimeout(() => {
+      if (autoSpinMode === 'spins') {
+        setAutoSpinSpinsRemaining(prev => prev - 1);
       } else {
-        setFreeSpinsMode(false);
-        setExpandingSymbol(null);
-        setIsSpinning(false);
-        spinInProgressRef.current = false;
-        
-        setTimeout(() => {
-          alert(`🎉 FREE SPINS COMPLETATI!\n\nVincita Totale: ${freeSpinsTotalWin.toFixed(2)} token`);
-          setFreeSpinsTotalWin(0);
-        }, 500);
+        setAutoSpinBudgetRemaining(prev => prev - currentBet);
       }
-    } else {
-      setIsSpinning(false);
-      spinInProgressRef.current = false;
-    }
-  };
-
-  // ✅ FIX #3: useEffect per autospin
-  useEffect(() => {
-    if (autoSpinTimerRef.current) {
-      clearTimeout(autoSpinTimerRef.current);
-      autoSpinTimerRef.current = null;
-    }
-
-    if (autoSpinActive && !isSpinning && !spinInProgressRef.current && !freeSpinsMode) {
-      const canStart = autoSpinMode === 'spins' 
-        ? autoSpinSpinsRemaining > 0 
-        : (autoSpinBudgetRemaining > 0 && credits >= currentBet);
       
-      if (canStart) {
-        autoSpinTimerRef.current = setTimeout(() => {
-          if (autoSpinMode === 'spins') {
-            setAutoSpinSpinsRemaining(prev => prev - 1);
-          }
-          handleSpin();
-        }, turboMode ? 500 : 1000);
-      } else {
-        setAutoSpinActive(false);
-        setAutoSpinSpinsRemaining(0);
-        setAutoSpinBudgetRemaining(0);
-      }
-    }
-    
-    return () => {
-      if (autoSpinTimerRef.current) {
-        clearTimeout(autoSpinTimerRef.current);
-      }
-    };
-  }, [autoSpinActive, autoSpinSpinsRemaining, autoSpinBudgetRemaining, isSpinning, freeSpinsMode, autoSpinMode, credits, currentBet, turboMode]);
+      handleSpin();
+    }, turboMode ? 500 : 1000);
+  } else {
+    setAutoSpinActive(false);
+  }
+}
 
-  const handleAutoSpinConfig = (mode, value) => {
-    setAutoSpinMode(mode);
-    if (mode === 'spins') {
-      setAutoSpinSpinsRemaining(value);
-      setAutoSpinBudgetRemaining(0);
-    } else {
-      setAutoSpinBudgetRemaining(value);
-      setAutoSpinSpinsRemaining(0);
-    }
-    setAutoSpinActive(true);
-    setShowAutoSpinModal(false);
-  };
+return () => {
+  if (autoSpinTimerRef.current) {
+    clearTimeout(autoSpinTimerRef.current);
+  }
+};
+```
 
-  const toggleAutoSpin = () => {
-    if (autoSpinActive) {
-      setAutoSpinActive(false);
-      setAutoSpinSpinsRemaining(0);
-      setAutoSpinBudgetRemaining(0);
-    } else {
-      setShowAutoSpinModal(true);
-    }
-  };
+}, [autoSpinActive, isSpinning, autoSpinSpinsRemaining, autoSpinBudgetRemaining, autoSpinMode, credits, currentBet, freeSpinsMode, turboMode, showScatterCelebration, showSymbolSelection]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-950 to-black flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-orange-600 via-red-600 to-transparent animate-pulse"></div>
+return (
+<div className="min-h-screen bg-gradient-to-br from-red-950 via-orange-950 to-amber-950 flex items-center justify-center p-2 sm:p-4">
+<style>{`@keyframes reel-spin { 0% { transform: translateY(0); } 100% { transform: translateY(-2000px); } } .animate-reel-spin { animation: reel-spin 0.8s linear infinite; } @keyframes pulse-win { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } } .animate-pulse-win { animation: pulse-win 0.5s ease-in-out infinite; } @keyframes scatter-flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } } .animate-scatter-flash { animation: scatter-flash 0.3s ease-in-out infinite; }`}</style>
+
+```
+  <div className="w-full max-w-4xl">
+    {/* HEADER - ✅ FIX #2: Compattato */}
+    <div className="bg-gradient-to-r from-red-900 via-orange-800 to-red-900 px-3 py-2 sm:px-4 sm:py-3 rounded-t-2xl border-x-4 border-t-4 border-yellow-600 flex justify-between items-center shadow-2xl">
+      <button className="p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-all active:scale-95">
+        <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+      </button>
+
+      <div className="text-center flex-1">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-yellow-300" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.8)'}}>
+          INFERNO'S FORTUNE
+        </h1>
+        <p className="text-xs sm:text-sm text-yellow-500 font-bold flex items-center justify-center gap-1">
+          <Sparkles className="w-3 h-3" /> DELUXE EDITION <Sparkles className="w-3 h-3" />
+        </p>
       </div>
 
-      {/* MODAL AUTOSPIN */}
-      {showAutoSpinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 border-4 border-yellow-500 shadow-2xl max-w-md w-full">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-black text-yellow-300">AUTO SPIN</h2>
-              <button 
-                onClick={() => setShowAutoSpinModal(false)}
-                className="text-yellow-400 hover:text-yellow-200"
-              >
-                <X className="w-8 h-8" />
-              </button>
-            </div>
-            
-            <div className="space-y-6">
-              <div>
-                <label className="text-yellow-400 font-bold text-lg mb-2 block">
-                  Limite GIRI (5-100)
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[10, 25, 50].map(num => (
-                    <button
-                      key={num}
-                      onClick={() => handleAutoSpinConfig('spins', num)}
-                      className="bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-black py-3 px-4 rounded-lg border-2 border-blue-400 transition-all"
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-yellow-400 font-bold text-lg mb-2 block">
-                  Limite TOKEN
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[50, 100, 200].map(num => (
-                    <button
-                      key={num}
-                      onClick={() => handleAutoSpinConfig('budget', num)}
-                      disabled={credits < num}
-                      className="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-black py-3 px-4 rounded-lg border-2 border-green-400 disabled:border-gray-500 transition-all disabled:cursor-not-allowed"
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL PUNTATA */}
-      {showBetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 border-4 border-yellow-500 shadow-2xl max-w-md w-full">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-black text-yellow-300">SCEGLI PUNTATA</h2>
-              <button 
-                onClick={() => setShowBetModal(false)}
-                className="text-yellow-400 hover:text-yellow-200"
-              >
-                <X className="w-8 h-8" />
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-4">
-              {[0.5, 1, 2, 5, 10, 20, 50].map(bet => (
-                <button
-                  key={bet}
-                  onClick={() => {
-                    setCurrentBet(bet);
-                    setShowBetModal(false);
-                  }}
-                  disabled={credits < bet}
-                  className={`
-                    py-4 px-6 rounded-xl font-black text-2xl transition-all disabled:cursor-not-allowed disabled:opacity-50
-                    ${currentBet === bet 
-                      ? 'bg-yellow-500 text-black border-4 border-yellow-300' 
-                      : 'bg-gradient-to-br from-orange-600 to-red-600 text-white border-2 border-orange-400 hover:from-orange-500 hover:to-red-500'
-                    }
-                  `}
-                >
-                  {bet}
-                </button>
-              ))}
-              
-              {credits > 100 && (
-                <button
-                  onClick={() => {
-                    setCurrentBet(100);
-                    setShowBetModal(false);
-                  }}
-                  className={`
-                    py-4 px-6 rounded-xl font-black text-2xl transition-all
-                    ${currentBet === 100 
-                      ? 'bg-yellow-500 text-black border-4 border-yellow-300' 
-                      : 'bg-gradient-to-br from-orange-600 to-red-600 text-white border-2 border-orange-400 hover:from-orange-500 hover:to-red-500'
-                    }
-                  `}
-                >
-                  100
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL SELEZIONE SIMBOLO */}
-      {showSymbolSelection && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-3xl p-12 border-8 border-yellow-500 shadow-2xl max-w-4xl">
-            <h2 className="text-5xl font-black text-yellow-300 text-center mb-8 animate-pulse">
-              🎰 SELEZIONE SIMBOLO EXPANDING 🎰
-            </h2>
-            
-            <div className="grid grid-cols-5 gap-6 mb-8">
-              {symbolSelectionOptions.map((symbolKey, index) => (
-                <div
-                  key={symbolKey}
-                  className={`
-                    p-4 rounded-2xl border-4 transition-all duration-200
-                    ${index === selectedSymbolIndex 
-                      ? 'bg-yellow-400 border-yellow-300 scale-125 shadow-2xl' 
-                      : 'bg-purple-800/50 border-purple-600 scale-100'
-                    }
-                  `}
-                >
-                  <img 
-                    src={SYMBOLS[symbolKey].img}
-                    alt={SYMBOLS[symbolKey].name}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      filter: index === selectedSymbolIndex ? 'drop-shadow(0 0 20px gold)' : 'none'
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            
-            <p className="text-yellow-200 text-2xl text-center font-bold">
-              Il simbolo scelto si espanderà durante i Free Spins!
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ✅ FIX #2: Header più compatto */}
-      <div className="relative z-10 bg-gradient-to-r from-red-900 via-orange-700 to-red-900 border-b-4 border-yellow-600 shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-2">
-          <button className="flex items-center gap-2 bg-black/50 hover:bg-black/70 text-yellow-400 font-bold px-3 py-1.5 rounded-lg border border-yellow-600 transition-all text-sm">
-            <ArrowLeft className="w-4 h-4" />
-            MENU
-          </button>
-
-          <div className="text-center">
-            <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 drop-shadow-2xl tracking-wider px-6 py-1 leading-tight">
-              INFERNO'S FORTUNE
-            </h1>
-            <p className="text-yellow-400 font-semibold text-xs tracking-widest">
-              ★ DELUXE EDITION ★
-            </p>
-          </div>
-
-          <div className="flex gap-2">
-            <button className="bg-black/50 hover:bg-black/70 p-1.5 rounded-lg border border-yellow-600 text-yellow-400 transition-all">
-              <Volume2 className="w-4 h-4" />
-            </button>
-            <button className="bg-black/50 hover:bg-black/70 p-1.5 rounded-lg border border-yellow-600 text-yellow-400 transition-all">
-              <Settings className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+      <div className="flex gap-1 sm:gap-2">
+        <button className="p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-all active:scale-95">
+          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+        </button>
+        <button className="p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-all active:scale-95">
+          <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+        </button>
       </div>
+    </div>
 
-      {/* FREE SPINS Banner */}
-      {freeSpinsMode && (
-        <div className="relative z-20 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 py-2 px-4 border-b-4 border-yellow-400 shadow-2xl animate-pulse">
-          <div className="flex items-center justify-between max-w-6xl mx-auto">
-            <div className="flex items-center gap-2">
-              <Trophy className="w-6 h-6 text-yellow-300" />
-              <div>
-                <div className="text-yellow-300 font-black text-lg">FREE SPINS ATTIVI!</div>
-                <div className="text-white text-xs">Simbolo: {SYMBOLS[expandingSymbol]?.name}</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-yellow-300 text-xs">Rimanenti</div>
-              <div className="text-white font-black text-xl">{freeSpinsRemaining}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-yellow-300 text-xs">Vincita</div>
-              <div className="text-green-400 font-black text-xl">{freeSpinsTotalWin.toFixed(2)}</div>
-            </div>
-          </div>
+    {/* FREE SPINS BANNER */}
+    {freeSpinsMode && (
+      <div className="bg-gradient-to-r from-purple-800 to-purple-600 px-3 py-2 text-center border-x-4 border-yellow-600 animate-pulse">
+        <div className="text-sm sm:text-base md:text-lg font-black text-yellow-300 flex items-center justify-center gap-2">
+          <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
+          FREE SPINS: {freeSpinsRemaining} rimasti | Vincita totale: {freeSpinsTotalWin.toFixed(2)}
+          <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
-      )}
+        {expandingSymbol && (
+          <div className="text-xs sm:text-sm text-yellow-400 mt-1">
+            Simbolo espandibile: {SYMBOLS[expandingSymbol].name}
+          </div>
+        )}
+      </div>
+    )}
 
-      {/* Area gioco */}
-      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
-        <div className="max-w-5xl w-full">
+    {/* BET MODAL */}
+    {showBetModal && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-4 sm:p-6 max-w-md w-full border-4 border-yellow-500 shadow-2xl">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-black text-yellow-300">SELEZIONA PUNTATA</h2>
+            <button onClick={() => setShowBetModal(false)} className="p-1 hover:bg-white/20 rounded-lg">
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+            </button>
+          </div>
           
-          <div className="relative bg-gradient-to-b from-amber-900 via-yellow-800 to-amber-900 p-4 rounded-3xl shadow-2xl border-8 border-double border-yellow-600">
-            
-            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-600 to-orange-600 px-8 py-2 rounded-t-2xl border-4 border-yellow-600 shadow-xl z-10">
-              <div className="flex items-center gap-2">
-                <Flame className="w-5 h-5 text-yellow-300 animate-pulse" />
-                <span className="text-xl font-black text-yellow-300 tracking-wider">GIRA E VINCI</span>
-                <Flame className="w-5 h-5 text-yellow-300 animate-pulse" />
-              </div>
-            </div>
+          <div className="grid grid-cols-4 gap-2">
+            {[0.5, 1, 2, 5, 10, 20, 50, 100].map(bet => (
+              <button
+                key={bet}
+                onClick={() => {
+                  setCurrentBet(bet);
+                  setShowBetModal(false);
+                }}
+                disabled={credits < bet}
+                className={`py-2 sm:py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition-all ${
+                  bet === currentBet
+                    ? 'bg-green-600 text-white scale-105'
+                    : credits < bet
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    : 'bg-purple-700 hover:bg-purple-600 text-white active:scale-95'
+                }`}
+              >
+                {bet.toFixed(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
 
-            {/* Griglia rulli */}
-            <div className="bg-gradient-to-b from-black via-gray-900 to-black rounded-2xl p-3 shadow-inner relative overflow-hidden">
-              
-              {/* Numeri sinistra */}
-              <div className="absolute -left-12 top-0 bottom-0 flex flex-col justify-around py-3 z-10">
-                {[1, 2, 3, 4, 5].map(num => (
-                  <div 
-                    key={`left-${num}`} 
-                    className={`text-black font-black text-sm px-2 py-1.5 rounded-lg shadow-lg border-2 transition-all ${
-                      winningLines.includes(num - 1)
-                        ? 'bg-gradient-to-r from-green-400 to-green-500 border-green-300 animate-pulse'
-                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 border-yellow-300'
-                    }`}
-                  >
-                    {num}
-                  </div>
-                ))}
-              </div>
+    {/* AUTOSPIN MODAL */}
+    {showAutoSpinModal && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-4 sm:p-6 max-w-md w-full border-4 border-yellow-500 shadow-2xl">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-black text-yellow-300">AUTO SPIN</h2>
+            <button onClick={() => setShowAutoSpinModal(false)} className="p-1 hover:bg-white/20 rounded-lg">
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+            </button>
+          </div>
 
-              {/* Numeri destra */}
-              <div className="absolute -right-12 top-0 bottom-0 flex flex-col justify-around py-3 z-10">
-                {[6, 7, 8, 9, 10].map(num => (
-                  <div 
-                    key={`right-${num}`} 
-                    className={`text-black font-black text-sm px-2 py-1.5 rounded-lg shadow-lg border-2 transition-all ${
-                      winningLines.includes(num - 1)
-                        ? 'bg-gradient-to-r from-green-400 to-green-500 border-green-300 animate-pulse'
-                        : 'bg-gradient-to-r from-orange-500 to-yellow-500 border-yellow-300'
-                    }`}
-                  >
-                    {num}
-                  </div>
-                ))}
-              </div>
-
-              {/* 5 Rulli */}
-              <div className="grid grid-cols-5 gap-2">
-                {reels.map((reel, reelIndex) => (
-                  <div key={reelIndex} className="flex flex-col gap-2 relative">
-                    {/* ✅ FIX #1: Animazione SEMPRE visibile */}
-                    {spinningReels[reelIndex] ? (
-                      <div className="absolute inset-0 overflow-hidden rounded-xl z-10">
-                        <div className="animate-reel-spin">
-                          {reelAnimationSymbols[reelIndex].map((symbolKey, idx) => (
-                            <div
-                              key={idx}
-                              className="bg-gradient-to-br from-red-900 via-orange-800 to-red-900 rounded-xl border-4 border-yellow-600/30 flex items-center justify-center aspect-square mb-2"
-                            >
-                              <img 
-                                src={SYMBOLS[symbolKey].img}
-                                alt={SYMBOLS[symbolKey].name}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'contain',
-                                  padding: '8px',
-                                  filter: 'blur(2px)'
-                                }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                    
-                    {/* Simboli finali sempre visibili */}
-                    {reel.map((symbolKey, rowIndex) => {
-                      const isWinning = winningPositions.some(
-                        ([r, ro]) => r === reelIndex && ro === rowIndex
-                      );
-                      const isScatter = showScatterCelebration && symbolKey === 'book';
-                      
-                      return (
-                        <div
-                          key={`${reelIndex}-${rowIndex}`}
-                          className={`
-                            bg-gradient-to-br from-red-900 via-orange-800 to-red-900 
-                            rounded-xl border-4 flex items-center justify-center 
-                            aspect-square transition-all duration-300
-                            ${isWinning ? 'border-green-400 animate-pulse-win' : 'border-yellow-600/50'}
-                            ${isScatter ? 'animate-scatter-flash' : ''}
-                            ${spinningReels[reelIndex] ? 'opacity-0' : 'opacity-100'}
-                          `}
-                        >
-                          <img 
-                            src={SYMBOLS[symbolKey].img}
-                            alt={SYMBOLS[symbolKey].name}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'contain',
-                              padding: '8px',
-                              filter: isWinning ? 'drop-shadow(0 0 10px #4ade80)' : 'none'
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ✅ FIX #2: Barra inferiore più compatta */}
-            <div className="mt-4 grid grid-cols-4 gap-3">
-              
-              {/* Credito e Puntata */}
-              <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-3 border-4 border-gray-600 shadow-lg">
-                <div className="text-yellow-400 text-xs font-bold mb-1 text-center">CREDITO:</div>
-                <div className="text-white text-xl font-black text-center mb-2">
-                  💰 {credits.toFixed(2)}
-                </div>
-                
-                <div className="border-t-2 border-gray-600 pt-2 mt-1">
-                  <div className="text-yellow-400 text-xs font-bold mb-1 text-center">PUNTATA:</div>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-yellow-400 font-bold mb-2 text-sm sm:text-base">Numero giri:</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {[5, 10, 25, 50].map(spins => (
                   <button
-                    onClick={() => !isSpinning && !freeSpinsMode && !autoSpinActive && setShowBetModal(true)}
-                    disabled={isSpinning || freeSpinsMode || autoSpinActive}
-                    className="w-full text-yellow-300 hover:text-yellow-100 text-2xl font-black py-1 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    key={spins}
+                    onClick={() => startAutoSpin('spins', spins)}
+                    className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-2 rounded-lg transition-all text-sm sm:text-base"
                   >
-                    💳 {currentBet.toFixed(1)}
+                    {spins}
                   </button>
-                  <div className="text-gray-400 text-xs text-center">
-                    (clicca)
-                  </div>
-                </div>
+                ))}
               </div>
+            </div>
 
-              {/* Vincita */}
-              <div className={`col-span-2 rounded-xl p-3 border-4 shadow-lg transition-all ${
-                currentWin > 0 
-                  ? 'bg-gradient-to-br from-green-700 to-green-800 border-green-400 animate-pulse' 
-                  : 'bg-gradient-to-br from-gray-700 to-gray-800 border-gray-600'
-              }`}>
-                <div className="text-yellow-400 text-sm font-bold mb-1 text-center">
-                  {currentWin > 0 ? 'VINCITA:' : 'ULTIMA:'}
-                </div>
-                <div className={`text-4xl font-black text-center ${
-                  currentWin > 0 ? 'text-yellow-300' : (lastWin > 0 ? 'text-green-300' : 'text-gray-400')
-                }`}>
-                  💰 {(currentWin > 0 ? currentWin : lastWin).toFixed(2)}
-                </div>
+            <div>
+              <h3 className="text-yellow-400 font-bold mb-2 text-sm sm:text-base">Budget token:</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {[20, 50, 100, 200].map(budget => (
+                  <button
+                    key={budget}
+                    onClick={() => startAutoSpin('budget', budget)}
+                    className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-2 rounded-lg transition-all text-sm sm:text-base"
+                  >
+                    {budget}
+                  </button>
+                ))}
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
 
-              {/* Opzioni */}
-              <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl p-2 border-4 border-blue-600 shadow-lg flex flex-col gap-2">
-                
-                <button
-                  onClick={() => setTurboMode(!turboMode)}
-                  disabled={isSpinning}
-                  className={`${
-                    turboMode 
-                      ? 'bg-yellow-500 border-yellow-400' 
-                      : 'bg-gray-700 border-gray-600'
-                  } border-2 text-white font-black py-2 px-3 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 text-sm`}
-                >
-                  <Zap className="w-4 h-4" />
-                  TURBO
-                </button>
+    {/* SCATTER CELEBRATION */}
+    {showScatterCelebration && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div className="text-center animate-bounce">
+          <div className="text-6xl sm:text-8xl mb-4">🎉</div>
+          <div className="text-4xl sm:text-6xl font-black text-yellow-300 mb-2">
+            GIRA E VINCI! 🔥
+          </div>
+          <div className="text-2xl sm:text-3xl font-bold text-orange-400">
+            10 FREE SPINS ATTIVATI!
+          </div>
+        </div>
+      </div>
+    )}
 
-                <button
-                  onClick={toggleAutoSpin}
-                  disabled={isSpinning || freeSpinsMode}
-                  className={`${
-                    autoSpinActive 
-                      ? 'bg-red-600 border-red-400' 
-                      : 'bg-purple-700 border-purple-600'
-                  } border-2 text-white font-black py-2 px-3 rounded-lg transition-all active:scale-95 text-sm`}
-                >
-                  {autoSpinActive ? 'STOP' : 'AUTO'}
-                </button>
-                
-                {autoSpinActive && (
-                  <div className="text-yellow-300 text-xs text-center font-bold">
-                    {autoSpinMode === 'spins' 
-                      ? `${autoSpinSpinsRemaining}` 
-                      : `${autoSpinBudgetRemaining.toFixed(0)}`}
+    {/* SYMBOL SELECTION */}
+    {showSymbolSelection && (
+      <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-purple-900 to-purple-800 rounded-2xl p-4 sm:p-8 max-w-2xl w-full border-4 border-yellow-500 shadow-2xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-yellow-300 text-center mb-4 sm:mb-6">
+            SELEZIONA IL SIMBOLO ESPANDIBILE
+          </h2>
+          
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 mb-4 sm:mb-8">
+            {symbolSelectionOptions.map((symbolKey, index) => (
+              <button
+                key={symbolKey}
+                onClick={() => setSelectedSymbolIndex(index)}
+                className={`aspect-square rounded-xl p-2 sm:p-3 transition-all ${
+                  selectedSymbolIndex === index
+                    ? 'bg-yellow-500 scale-110 border-4 border-yellow-300 shadow-lg shadow-yellow-500/50'
+                    : 'bg-gray-700 border-2 border-gray-500 hover:scale-105'
+                }`}
+              >
+                <img 
+                  src={SYMBOLS[symbolKey].img}
+                  alt={SYMBOLS[symbolKey].name}
+                  className="w-full h-full object-contain"
+                />
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => startFreeSpins(symbolSelectionOptions[selectedSymbolIndex])}
+            className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-black py-3 sm:py-4 px-4 sm:px-8 rounded-xl text-lg sm:text-2xl transition-all active:scale-95 border-4 border-green-400"
+          >
+            INIZIA FREE SPINS
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* SLOT MACHINE - ✅ FIX #2 & #6: Responsive */}
+    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-3 sm:p-4 md:p-6 rounded-b-2xl border-x-4 border-b-4 border-yellow-600 shadow-2xl">
+      <div className="relative">
+        {/* Area rulli - ✅ FIX #2: Dimensioni scalabili */}
+        <div className="bg-gradient-to-br from-orange-950 to-red-950 rounded-xl p-2 sm:p-3 md:p-4 border-4 border-yellow-700 shadow-inner relative overflow-hidden">
+          <div className="grid grid-cols-5 gap-1 sm:gap-2 relative z-20">
+            {reels.map((reel, reelIndex) => (
+              <div key={reelIndex} className="space-y-1 sm:space-y-2">
+                {spinningReels[reelIndex] ? (
+                  // ✅ FIX #1: Simboli che scorrono (NO scomparsa)
+                  <div className="h-[180px] sm:h-[240px] md:h-[300px] overflow-hidden relative">
+                    <div className="animate-reel-spin space-y-1 sm:space-y-2">
+                      {Array(30).fill(null).map((_, idx) => {
+                        const symbol = generateRandomSymbol();
+                        return (
+                          <div
+                            key={idx}
+                            className="h-[58px] sm:h-[78px] md:h-[98px] w-full bg-gradient-to-br from-red-900 to-orange-900 rounded-lg border-2 border-yellow-600 flex items-center justify-center"
+                          >
+                            <img 
+                              src={SYMBOLS[symbol].img}
+                              alt={SYMBOLS[symbol].name}
+                              className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
+                ) : (
+                  // Rullo fermo
+                  reel.map((symbol, rowIndex) => {
+                    const isWinning = winningPositions.some(
+                      ([r, row]) => r === reelIndex && row === rowIndex
+                    );
+                    const isScatter = symbol === 'book';
+
+                    return (
+                      <div
+                        key={rowIndex}
+                        className={`h-[58px] sm:h-[78px] md:h-[98px] w-full rounded-lg border-2 flex items-center justify-center transition-all ${
+                          isWinning 
+                            ? 'bg-gradient-to-br from-green-600 to-green-700 border-green-400 animate-pulse-win' 
+                            : isScatter
+                            ? 'bg-gradient-to-br from-yellow-700 to-orange-700 border-yellow-400 animate-scatter-flash'
+                            : 'bg-gradient-to-br from-red-900 to-orange-900 border-yellow-600'
+                        }`}
+                      >
+                        <img 
+                          src={SYMBOLS[symbol].img}
+                          alt={SYMBOLS[symbol].name}
+                          className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 object-contain"
+                        />
+                        {isScatter && (
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-yellow-300 animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
-            </div>
-
-            {/* PULSANTE SPIN */}
-            <div className="mt-3">
-              <button 
-                onClick={handleSpin}
-                disabled={isSpinning || (!freeSpinsMode && credits < currentBet) || autoSpinActive}
-                className="w-full bg-gradient-to-b from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg border-4 border-green-400 disabled:border-gray-500 transition-all active:scale-95 disabled:cursor-not-allowed relative overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                <div className="relative z-10 text-3xl">
-                  {isSpinning ? '⏳ SPIN...' : '▶ SPIN!'}
-                </div>
-              </button>
-            </div>
+            ))}
           </div>
+
+          <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-50 pointer-events-none z-10"></div>
+        </div>
+
+        <div className="absolute -bottom-3 sm:-bottom-4 left-0 right-0 flex justify-center gap-4 sm:gap-6">
+          <Flame className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500 animate-pulse" />
+          <Flame className="w-8 h-8 sm:w-10 sm:h-10 text-red-500 animate-pulse" style={{animationDelay: '0.3s'}} />
+          <Flame className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500 animate-pulse" style={{animationDelay: '0.6s'}} />
         </div>
       </div>
 
-      {/* CSS animazioni */}
-      <style>{`
-        @keyframes reel-spin {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-100%); }
-        }
-        
-        .animate-reel-spin {
-          animation: reel-spin ${turboMode ? '0.05s' : '0.15s'} linear infinite;
-        }
+      {/* PANNELLO CONTROLLI - ✅ FIX #2: Compatto e responsive */}
+      <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          {/* CREDITO */}
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-2 sm:p-3 border-2 border-yellow-700">
+            <div className="text-yellow-500 text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">CREDITO:</div>
+            <div className="text-yellow-300 text-base sm:text-xl md:text-2xl font-black flex items-center gap-1">
+              💰 {credits.toFixed(2)}
+            </div>
+            <div className="text-yellow-600 text-xs mt-0.5 sm:mt-1">
+              TOT. PUNTATA:
+            </div>
+            <div className="text-yellow-400 text-sm sm:text-base font-bold flex items-center gap-1">
+              💳 {currentBet.toFixed(1)}
+            </div>
+            <button
+              onClick={() => setShowBetModal(true)}
+              className="text-xs text-yellow-500 underline mt-1 hover:text-yellow-300"
+            >
+              (click per cambiare)
+            </button>
+          </div>
 
-        @keyframes pulse-win {
-          0%, 100% { 
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(74, 222, 128, 0.8);
-          }
-          50% { 
-            transform: scale(1.15);
-            box-shadow: 0 0 30px rgba(74, 222, 128, 1);
-          }
-        }
-        
-        .animate-pulse-win {
-          animation: pulse-win 0.6s infinite;
-        }
+          {/* ULTIMA VINCITA */}
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-2 sm:p-3 border-2 border-yellow-700">
+            <div className="text-yellow-500 text-xs sm:text-sm font-bold mb-0.5 sm:mb-1">ULTIMA VINCITA:</div>
+            <div className="text-green-400 text-base sm:text-xl md:text-2xl font-black flex items-center gap-1">
+              💰 {lastWin.toFixed(2)}
+            </div>
+          </div>
+        </div>
 
-        @keyframes scatter-flash {
-          0%, 100% { 
-            box-shadow: 0 0 30px rgba(250, 204, 21, 1);
-            border-color: rgba(250, 204, 21, 1);
-          }
-          50% { 
-            box-shadow: 0 0 50px rgba(250, 204, 21, 1);
-            border-color: rgba(251, 191, 36, 1);
-            transform: scale(1.2);
-          }
-        }
-        
-        .animate-scatter-flash {
-          animation: scatter-flash 0.5s infinite;
-        }
+        {/* PULSANTI AZIONE - ✅ FIX #2: Compatti */}
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => setTurboMode(!turboMode)}
+            className={`py-2 sm:py-3 px-2 sm:px-4 rounded-xl font-bold text-xs sm:text-sm md:text-base transition-all active:scale-95 ${
+              turboMode
+                ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white border-2 border-yellow-400'
+                : 'bg-gradient-to-r from-blue-700 to-blue-800 text-white border-2 border-blue-500 hover:from-blue-600 hover:to-blue-700'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <Zap className="w-3 h-3 sm:w-4 sm:h-4" /> TURBO
+            </div>
+          </button>
 
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-      `}</style>
+          <button
+            onClick={toggleAutoSpin}
+            disabled={isSpinning || freeSpinsMode}
+            className={`py-2 sm:py-3 px-2 sm:px-4 rounded-xl font-bold text-xs sm:text-sm md:text-base transition-all active:scale-95 ${
+              autoSpinActive
+                ? 'bg-gradient-to-r from-red-600 to-red-700 text-white border-2 border-red-400 animate-pulse'
+                : 'bg-gradient-to-r from-purple-700 to-purple-800 text-white border-2 border-purple-500 hover:from-purple-600 hover:to-purple-700'
+            } ${(isSpinning || freeSpinsMode) ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            AUTO SPIN
+            {autoSpinActive && (
+              <div className="text-xs mt-0.5">
+                {autoSpinMode === 'spins' ? `${autoSpinSpinsRemaining} giri` : `${autoSpinBudgetRemaining.toFixed(0)} token`}
+              </div>
+            )}
+          </button>
+
+          <button
+            onClick={handleSpin}
+            disabled={isSpinning || credits < currentBet}
+            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-black py-2 sm:py-3 px-2 sm:px-4 rounded-xl text-base sm:text-lg md:text-xl transition-all active:scale-95 border-2 border-green-400"
+          >
+            ▶ SPIN!
+          </button>
+        </div>
+      </div>
     </div>
-  );
+  </div>
+</div>
+```
+
+);
 }
 
 export default InfernoFortuneSlot;
